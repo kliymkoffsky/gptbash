@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'preact/hooks';
 import './voting.css';
 import { formatNumber } from '../utils/formatters';
 import { trackVote } from '../utils/analytics';

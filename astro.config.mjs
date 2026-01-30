@@ -1,20 +1,37 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-import react from '@astrojs/react';
+import preact from '@astrojs/preact';
 import tailwindcss from '@tailwindcss/vite';
+import partytown from '@astrojs/partytown';
+import sonda from 'sonda/astro';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react()],
+  integrations: [
+    preact(), 
+    partytown({
+      config: {
+        // Forward GTM dataLayer.push to web worker
+        forward: ['dataLayer.push']
+      }
+    }),
+    sonda()
+  ],
+
+  // Enable prefetching for faster navigation
+  prefetch: {
+    defaultStrategy: 'viewport',
+    prefetchAll: true
+  },
+
+  // Performance optimizations
+  build: {
+    // Inline small CSS files to eliminate render-blocking requests
+    inlineStylesheets: 'always'
+  },
 
   vite: {
-    plugins: [tailwindcss()],
-    // Prevent Vite dep pre-bundling from inlining React's production JSX dev runtime.
-    // If `react/jsx-dev-runtime` gets optimized with NODE_ENV=production, `jsxDEV` becomes undefined
-    // and React components crash in dev with: "jsxDEV is not a function".
-    optimizeDeps: {
-      exclude: ['react/jsx-dev-runtime', 'react/jsx-runtime'],
-    },
+    plugins: [tailwindcss()]
   }
 });

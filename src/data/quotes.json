@@ -210,8 +210,8 @@
     }
   ],
   "meta": {
-    "totalAccepted": 8223,
+    "totalAccepted": 26,
     "totalRejected": 4855383,
-    "lastId": 4863601
+    "lastId": 25
   }
 }
