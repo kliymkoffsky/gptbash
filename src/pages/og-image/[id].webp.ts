@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { ImageResponse } from '@vercel/og';
+import sharp from 'sharp';
 import quotesData from '../../data/quotes.json';
 
 export function getStaticPaths() {
@@ -23,7 +24,7 @@ export const GET: APIRoute = async ({ params }) => {
     : quote.content;
 
   try {
-    // Generate image matching the actual quote card design
+    // Generate image with 2.5x scale - content will naturally crop at edges
     const html = {
       type: 'div',
       props: {
@@ -34,6 +35,8 @@ export const GET: APIRoute = async ({ params }) => {
           height: '100%',
           backgroundColor: '#fff',
           fontFamily: 'monospace',
+          transform: 'scale(2.5)',
+          transformOrigin: 'top left',
         },
         children: [
           // Top bar with ID (matching .bar style)
@@ -43,7 +46,7 @@ export const GET: APIRoute = async ({ params }) => {
               style: {
                 display: 'flex',
                 margin: '0',
-                padding: '12px 20px',
+                padding: '8px 12px',
                 borderBottom: '1px solid #cfd1d1',
                 backgroundColor: '#f4f4f4',
                 color: '#565d5f',
@@ -69,11 +72,11 @@ export const GET: APIRoute = async ({ params }) => {
               style: {
                 display: 'flex',
                 margin: '0',
-                padding: '20px',
+                padding: '12px',
                 color: '#444',
                 whiteSpace: 'pre-wrap',
                 fontSize: '40px',
-                lineHeight: '1.4',
+                lineHeight: '1.2',
                 fontFamily: '"Lucida Console", "Monaco", "Courier New", monospace',
               },
               children: content,
@@ -88,12 +91,17 @@ export const GET: APIRoute = async ({ params }) => {
       height: 630,
     });
 
-    // Convert to buffer and return as PNG
-    const buffer = await imageResponse.arrayBuffer();
+    // Convert to PNG buffer first
+    const pngBuffer = await imageResponse.arrayBuffer();
     
-    return new Response(buffer, {
+    // Convert PNG to WebP with extreme compression
+    const webpBuffer = await sharp(Buffer.from(pngBuffer))
+      .webp({ quality: 30, effort: 6 })
+      .toBuffer();
+    
+    return new Response(webpBuffer, {
       headers: {
-        'Content-Type': 'image/png',
+        'Content-Type': 'image/webp',
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     });
