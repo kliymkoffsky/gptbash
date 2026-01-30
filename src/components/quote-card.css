@@ -1,10 +1,23 @@
-/* Quote bar (header row) - exact match */
+/* Quote card container - optimize for rendering */
+article {
+  /* CSS containment for better performance */
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 150px;
+}
+
+/* Quote bar (header row) - modernized with flexbox */
 .bar {
   margin: 10px 15px 2px 15px;
   padding: 3px;
   border-bottom: 1px solid #cfd1d1;
   background: #f4f4f4;
   color: #565d5f;
+  /* Use flexbox for better layout stability */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 /* Quote ID */
@@ -32,16 +45,18 @@ div.quote {
   white-space: pre-wrap;
   font-size: 13px;
   line-height: 1.4;
+  /* Optimize text rendering */
+  contain: content;
 }
 
-/* Date styling */
+/* Date styling - use margin-left auto for flex alignment */
 .date {
-  float: right;
+  margin-left: auto;
   color: #565d5f;
   font-size: 13px;
 }
 
-/* Utility for clearing floats */
+/* Utility for clearing floats - keep for backwards compat */
 .clearfix::after {
   content: "";
   display: table;

@@ -5,6 +5,8 @@ import preact from '@astrojs/preact';
 import tailwindcss from '@tailwindcss/vite';
 import partytown from '@astrojs/partytown';
 import sonda from 'sonda/astro';
+import compress from '@playform/compress';
+import compressor from 'astro-compressor';
 
 // https://astro.build/config
 export default defineConfig({
@@ -16,7 +18,23 @@ export default defineConfig({
         forward: ['dataLayer.push']
       }
     }),
-    sonda()
+    sonda(),
+    // Aggressive minification (HTML, CSS, JS, SVG)
+    compress({
+      HTML: true,
+      JavaScript: true,
+      CSS: true,
+      SVG: true
+    }),
+    // Pre-compression (gzip + Brotli) - runs last after minification
+    compressor({
+      gzip: true,
+      brotli: true,
+      zstd: false,
+      // Maximum compression settings
+      gzipOptions: { level: 9 },
+      brotliOptions: { quality: 11 }
+    })
   ],
 
   // Enable prefetching for faster navigation

@@ -7,12 +7,17 @@
   margin: 0;
   background: #565d5f;
   color: #e0e0e0; /* Improved contrast from #ccc to meet WCAG AA */
+  /* Prevent layout shifts */
+  contain: layout style;
+  transform: translateZ(0);
 }
 
 #foot a {
   color: #e0e0e0; /* Improved contrast to meet WCAG AA */
+  transform: translateZ(0);
 }
 
 #foot a:hover {
   color: #fff;
+  will-change: color;
 }

@@ -2,11 +2,15 @@
 #head {
   padding: 0 15px;
   margin: 0;
-  font: normal 50px Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font: normal 50px Impact, 'Impact Fallback', Haettenschweiler, "Arial Narrow Bold", sans-serif;
   line-height: 64px;
+  min-height: 64px;
   border-bottom: 5px solid #ccc;
   background: #565d5f;
   color: #ccc;
+  /* Prevent layout shifts during font load */
+  contain: layout style;
+  transform: translateZ(0);
 }
 
 #head a {
@@ -16,4 +20,5 @@
 
 #head a:hover {
   opacity: 0.7;
+  will-change: opacity;
 }

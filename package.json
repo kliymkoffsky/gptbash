@@ -16,10 +16,12 @@
   "dependencies": {
     "@astrojs/partytown": "^2.1.4",
     "@astrojs/preact": "^4.1.3",
+    "@playform/compress": "^0.2.1",
     "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.1.18",
     "@vercel/og": "^0.8.6",
     "astro": "^5.17.1",
+    "astro-compressor": "^1.2.0",
     "preact": "^10.28.2",
     "satori": "^0.19.1",
     "sharp": "^0.34.5",

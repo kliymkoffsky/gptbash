@@ -1,0 +1,188 @@
+---
+import QuoteCardAstro from './quote-card.astro';
+import Pagination from './Pagination';
+
+interface Quote {
+  uuid: string;
+  id: number;
+  content: string;
+  date: string;
+  upvotes: number;
+  downvotes: number;
+}
+
+interface Props {
+  quotes: Quote[];
+  currentPage?: number;
+  totalPages?: number;
+  baseUrl?: string;
+  enableInfiniteScroll?: boolean;
+}
+
+const { 
+  quotes, 
+  currentPage = 1, 
+  totalPages = 1,
+  baseUrl = '',
+  enableInfiniteScroll = false,
+} = Astro.props;
+---
+
+<div>
+  {/* Top pagination */}
+  {totalPages > 1 && (
+    <Pagination 
+      currentPage={currentPage} 
+      totalPages={totalPages} 
+      baseUrl={baseUrl}
+      client:load
+    />
+  )}
+  
+  {/* Server-rendered quotes with inlined styles */}
+  {quotes.map((quote) => (
+    <QuoteCardAstro key={quote.uuid} quote={quote} />
+  ))}
+
+  {/* Infinite scroll loader - only if enabled */}
+  {enableInfiniteScroll && (
+    <div 
+      id="infinite-scroll-loader" 
+      data-base-url={baseUrl}
+      data-current-page={currentPage}
+      data-total-pages={totalPages}
+      style="margin: 10px 16px; color: #666; font-size: 12px;"
+    >
+      <span>Ładowanie…</span>
+      <div data-sentinel style="height: 1px;"></div>
+    </div>
+  )}
+  
+  {/* Bottom pagination - only if no infinite scroll */}
+  {!enableInfiniteScroll && totalPages > 1 && (
+    <Pagination 
+      currentPage={currentPage} 
+      totalPages={totalPages} 
+      baseUrl={baseUrl}
+      client:load
+    />
+  )}
+</div>
+
+{enableInfiniteScroll && (
+  <script>
+    // Infinite scroll implementation
+    const loader = document.getElementById('infinite-scroll-loader');
+    const sentinel = loader?.querySelector('[data-sentinel]') as HTMLElement;
+    
+    if (loader && sentinel) {
+      let loading = false;
+      let nextPage = parseInt(loader.dataset.currentPage || '1', 10) + 1;
+      const totalPages = parseInt(loader.dataset.totalPages || '1', 10);
+      const baseUrl = loader.dataset.baseUrl || '';
+      
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (!entry?.isIntersecting) return;
+          if (loading) return;
+          if (nextPage > totalPages) {
+            loader.innerHTML = '<span>To już wszystko.</span>';
+            observer.disconnect();
+            return;
+          }
+
+          const url = nextPage <= 1 ? `${baseUrl}.json` : `${baseUrl}/${nextPage}.json`;
+          
+          loading = true;
+          loader.innerHTML = '<span>Ładowanie…</span>';
+
+          fetch(url)
+            .then(async (res) => {
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              return await res.json();
+            })
+            .then((data) => {
+              // Insert new quote cards before the loader
+              const container = loader.parentElement;
+              if (container && data.quotes) {
+                data.quotes.forEach((quote: any) => {
+                  const article = createQuoteCard(quote);
+                  container.insertBefore(article, loader);
+                });
+              }
+              
+              nextPage++;
+              loading = false;
+              
+              if (nextPage > totalPages) {
+                loader.innerHTML = '<span>To już wszystko.</span>';
+                observer.disconnect();
+              } else {
+                loader.innerHTML = '<span>Ładowanie…</span><div data-sentinel style="height: 1px;"></div>';
+                const newSentinel = loader.querySelector('[data-sentinel]') as HTMLElement;
+                if (newSentinel) {
+                  observer.observe(newSentinel);
+                }
+              }
+            })
+            .catch((err) => {
+              loading = false;
+              loader.innerHTML = `<span>Błąd ładowania: ${err.message} <a href="#" data-retry>spróbuj ponownie</a></span>`;
+              const retryBtn = loader.querySelector('[data-retry]');
+              if (retryBtn) {
+                retryBtn.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  loader.innerHTML = '<span>Ładowanie…</span><div data-sentinel style="height: 1px;"></div>';
+                  const newSentinel = loader.querySelector('[data-sentinel]') as HTMLElement;
+                  if (newSentinel) observer.observe(newSentinel);
+                });
+              }
+            });
+        },
+        { rootMargin: '600px 0px' }
+      );
+
+      observer.observe(sentinel);
+    }
+
+    // Helper to create quote card HTML (mirrors Astro component structure)
+    function createQuoteCard(quote: any): HTMLElement {
+      const article = document.createElement('article');
+      
+      // Escape HTML in content to prevent <nick> being interpreted as tags
+      const escapedContent = quote.content
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+      
+      article.innerHTML = `
+        <div class="bar clearfix">
+          <span class="qid">
+            <a href="/${quote.id}/" data-quote-id="${quote.id}">#${quote.id}</a>
+          </span>
+          <span class="votes">
+            <button type="button" disabled>+</button>
+          </span>
+          <span class="votes">
+            <button type="button" disabled>-</button>
+          </span>
+          <span class="points">${quote.upvotes - quote.downvotes}</span>
+          <time class="date" datetime="${quote.date}">
+            ${formatDate(quote.date)}
+          </time>
+        </div>
+        <div class="quote">${escapedContent}</div>
+      `;
+      return article;
+    }
+
+    function formatDate(dateStr: string): string {
+      const date = new Date(dateStr);
+      const months = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
+      return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    }
+  </script>
+)}

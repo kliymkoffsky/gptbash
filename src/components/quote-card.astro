@@ -1,0 +1,150 @@
+---
+import Voting from './voting';
+import { formatPolishDate, getISODateTime } from '../utils/formatters';
+
+interface Quote {
+  uuid: string;
+  id: number;
+  content: string;
+  date: string;
+  upvotes: number;
+  downvotes: number;
+}
+
+interface Props {
+  quote: Quote;
+  showLink?: boolean;
+}
+
+const { quote, showLink = true } = Astro.props;
+
+// Escape HTML to prevent <nick> from being interpreted as tags
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+const escapedContent = escapeHtml(quote.content);
+---
+
+<article>
+  {/* Quote bar (header row) - matching original structure */}
+  <div class="bar clearfix">
+    {/* Quote ID */}
+    <span class="qid">
+      {showLink ? (
+        <a 
+          href={`/${quote.id}/`}
+          data-quote-id={quote.id}
+        >
+          #{quote.id}
+        </a>
+      ) : (
+        <span style="font-weight: bold;">#{quote.id}</span>
+      )}
+    </span>
+    
+    {/* Voting component - client-side interactive */}
+    <Voting 
+      quoteId={quote.id}
+      initialUpvotes={quote.upvotes}
+      initialDownvotes={quote.downvotes}
+      client:load
+    />
+    
+    {/* Date - floated right with semantic time element */}
+    <time class="date" datetime={getISODateTime(quote.date)}>
+      {formatPolishDate(quote.date)}
+    </time>
+  </div>
+  
+  {/* Quote content - escaped HTML to prevent <nick> being interpreted as tags */}
+  <div class="quote" set:html={escapedContent}></div>
+</article>
+
+<style is:global>
+  /* Quote card container - optimize for rendering */
+  article {
+    /* CSS containment for better performance */
+    contain: layout style paint;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 150px;
+  }
+
+  /* Quote bar (header row) - modernized with flexbox */
+  .bar {
+    margin: 10px 15px 2px 15px;
+    padding: 3px;
+    border-bottom: 1px solid #cfd1d1;
+    background: #f4f4f4;
+    color: #565d5f;
+    /* Use flexbox for better layout stability */
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  /* Quote ID */
+  .qid {
+    margin: 1px 6px;
+  }
+
+  .qid a {
+    color: #565d5f;
+    font-weight: bold;
+  }
+
+  /* Quote content - exact match */
+  .quote,
+  .quote p {
+    padding: 0;
+    margin: 0;
+    font-family: "Lucida Console", "Droid Sans Mono", "Liberation Sans Mono", "DejaVu Sans Mono", Monaco, monospace;
+    margin-bottom: 15px;
+  }
+
+  div.quote {
+    margin: 2px 17px;
+    color: #444;
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.4;
+    /* Optimize text rendering */
+    contain: content;
+  }
+
+  /* Date styling - use margin-left auto for flex alignment */
+  .date {
+    margin-left: auto;
+    color: #565d5f;
+    font-size: 13px;
+  }
+
+  /* Utility for clearing floats - keep for backwards compat */
+  .clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+</style>
+
+<script>
+  import { trackQuoteView } from '../utils/analytics';
+  
+  // Track quote views on click
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const link = target.closest('a[data-quote-id]');
+    if (link) {
+      const quoteId = link.getAttribute('data-quote-id');
+      if (quoteId) {
+        trackQuoteView(parseInt(quoteId, 10));
+      }
+    }
+  });
+</script>

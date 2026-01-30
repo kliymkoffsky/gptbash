@@ -74,33 +74,21 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
   const score = getAdjustedScore();
   const baseScore = initialUpvotes - initialDownvotes;
 
-  // Show non-interactive version during SSR
-  if (!mounted) {
-    return (
-      <>
-        <span className="votes">
-          <a href="#">+</a>
-        </span>
-        <span className="votes">
-          <a href="#">-</a>
-        </span>
-        <span className="points">{formatNumber(baseScore)}</span>
-      </>
-    );
-  }
-
+  // Always render buttons (same structure for SSR and client)
+  // During SSR/before hydration, buttons are non-interactive but structurally identical
   return (
     <>
       <span className={`votes ${userVote === 'up' ? 'voted' : ''}`}>
         <button
           type="button"
-          onClick={(e) => {
+          onClick={mounted ? (e) => {
             e.preventDefault();
             handleVote('up');
-          }}
-          aria-label={userVote === 'up' ? 'Cofnij głos za' : 'Głosuj za cytat'}
-          aria-pressed={userVote === 'up'}
-          title={userVote === 'up' ? 'Cofnij głos' : 'Głosuj za'}
+          } : undefined}
+          disabled={!mounted}
+          aria-label={mounted && userVote === 'up' ? 'Cofnij głos za' : 'Głosuj za cytat'}
+          aria-pressed={mounted ? userVote === 'up' : undefined}
+          title={mounted && userVote === 'up' ? 'Cofnij głos' : 'Głosuj za'}
         >
           +
         </button>
@@ -108,19 +96,20 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
       <span className={`votes ${userVote === 'down' ? 'voted' : ''}`}>
         <button
           type="button"
-          onClick={(e) => {
+          onClick={mounted ? (e) => {
             e.preventDefault();
             handleVote('down');
-          }}
-          aria-label={userVote === 'down' ? 'Cofnij głos przeciw' : 'Głosuj przeciw cytatowi'}
-          aria-pressed={userVote === 'down'}
-          title={userVote === 'down' ? 'Cofnij głos' : 'Głosuj przeciw'}
+          } : undefined}
+          disabled={!mounted}
+          aria-label={mounted && userVote === 'down' ? 'Cofnij głos przeciw' : 'Głosuj przeciw cytatowi'}
+          aria-pressed={mounted ? userVote === 'down' : undefined}
+          title={mounted && userVote === 'down' ? 'Cofnij głos' : 'Głosuj przeciw'}
         >
           -
         </button>
       </span>
       <span className="points" aria-live="polite" aria-atomic="true" suppressHydrationWarning>
-        {formatNumber(score)}
+        {formatNumber(mounted ? score : baseScore)}
       </span>
     </>
   );

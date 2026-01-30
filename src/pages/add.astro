@@ -143,6 +143,7 @@ import BaseLayout from '../layouts/base-layout.astro';
   .add {
     text-align: center;
     padding: 0 15px;
+    contain: layout style;
   }
   
   .add form {
@@ -157,6 +158,8 @@ import BaseLayout from '../layouts/base-layout.astro';
     padding: 8px;
     border: 1px solid #aaa;
     resize: vertical;
+    /* Prevent layout shift on focus */
+    transform: translateZ(0);
   }
   
   .add textarea:focus {
@@ -190,10 +193,13 @@ import BaseLayout from '../layouts/base-layout.astro';
     font-size: 13px;
     cursor: pointer;
     line-height: 1.4;
+    /* Prevent layout shift on hover */
+    transform: translateZ(0);
   }
   
   .submit-btn:hover {
     opacity: 0.9;
+    will-change: opacity;
   }
   
   #result {
@@ -204,6 +210,8 @@ import BaseLayout from '../layouts/base-layout.astro';
     background: #f4f4f4;
     border: 1px solid #cfd1d1;
     text-align: left;
+    /* Prevent layout shift when shown */
+    contain: layout style;
   }
   
   #result p {

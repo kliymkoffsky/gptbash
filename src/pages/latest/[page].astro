@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/base-layout.astro';
-import QuoteList from '../../components/quote-list';
+import QuoteList from '../../components/quote-list.astro';
 import quotesData from '../../data/quotes.json';
 
 const QUOTES_PER_PAGE = 20;
@@ -43,6 +43,5 @@ const latestQuotes = allQuotes.slice(startIndex, startIndex + QUOTES_PER_PAGE);
     totalPages={totalPages}
     baseUrl="/latest"
     enableInfiniteScroll={true}
-    client:load 
   />
 </BaseLayout>
