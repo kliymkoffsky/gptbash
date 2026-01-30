@@ -1,6 +1,6 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import QuoteList from '../../components/QuoteList';
+import BaseLayout from '../../layouts/base-layout.astro';
+import QuoteList from '../../components/quote-list';
 import quotesData from '../../data/quotes.json';
 
 const QUOTES_PER_PAGE = 20;
@@ -16,7 +16,7 @@ const currentPage = 1;
 const latestQuotes = allQuotes.slice(0, QUOTES_PER_PAGE);
 ---
 
-<BaseLayout title="bash.org.pl: najnowsze">
+<BaseLayout title="gptbash.com: najnowsze">
   <QuoteList 
     quotes={latestQuotes} 
     currentPage={currentPage}

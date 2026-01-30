@@ -1,10 +1,13 @@
 import { Mastra } from "@mastra/core/mastra";
 import { quoteGeneratorWorkflow } from "./workflows/quote-generator.js";
-import { improvSessionWorkflow, runBatchImprov } from "./workflows/improv-session.js";
+import { improvSessionWorkflow, simpleImprovWorkflow, runBatchImprov } from "./workflows/improv-session.js";
 import { quoteStylistAgent } from "./agents/quote-stylist.js";
 import { personaAgents } from "./agents/personas/index.js";
 import { judgeAgents } from "./agents/judges/index.js";
 import { getRandomPrompt, getRandomPrompts } from "./data/conversation-prompts.js";
+import { initStorage, getStorage } from "./storage/index.js";
+import { config } from "./config.js";
+import { log } from "./utils/logger.js";
 
 /**
  * Mastra Instance
@@ -20,8 +23,23 @@ export const mastra = new Mastra({
   workflows: {
     "quote-generator": quoteGeneratorWorkflow,
     "improv-session": improvSessionWorkflow,
+    "simple-improv-session": simpleImprovWorkflow,
   },
 });
+
+/**
+ * Initialize storage (optional - gracefully handles Redis unavailability)
+ */
+async function tryInitStorage(): Promise<boolean> {
+  try {
+    await initStorage();
+    log.redis.connected();
+    return true;
+  } catch (error) {
+    log.redis.notAvailable();
+    return false;
+  }
+}
 
 /**
  * Format a quote for display
@@ -44,7 +62,7 @@ function formatQuoteForDisplay(quote: {
  * Run quote generator (Mode 1)
  */
 async function runQuoteGenerator(source: "wykop" | "twitter" | "mock", query?: string) {
-  console.log(`\n📝 Running Quote Generator (source: ${source})...\n`);
+  log.workflow.start("Quote Generator", `source: ${source}`);
 
   const workflow = mastra.getWorkflow("quote-generator");
   const run = await workflow.createRun();
@@ -54,10 +72,11 @@ async function runQuoteGenerator(source: "wykop" | "twitter" | "mock", query?: s
   });
 
   if (result.status === "success") {
-    console.log(formatQuoteForDisplay(result.result.quote));
+    log.quote.display(result.result.quote);
+    log.workflow.success("Quote generated successfully");
     return result.result.quote;
   } else {
-    console.error("Workflow failed:", result);
+    log.workflow.error("Workflow failed", new Error(JSON.stringify(result)));
     return null;
   }
 }
@@ -68,13 +87,15 @@ async function runQuoteGenerator(source: "wykop" | "twitter" | "mock", query?: s
 async function runImprovSession(
   topic: string,
   numPersonas = 3,
-  numRounds = 5
+  numRounds = 5,
+  useStorage = true
 ) {
-  console.log(`\n🎭 Running Improv Session...\n`);
-  console.log(`Topic: "${topic}"`);
-  console.log(`Personas: ${numPersonas}, Rounds: ${numRounds}\n`);
+  log.workflow.start("Improv Session", topic);
+  log.info(`Personas: ${numPersonas}, Rounds: ${numRounds}`);
 
-  const workflow = mastra.getWorkflow("improv-session");
+  // Choose workflow based on storage availability
+  const workflowId = useStorage ? "improv-session" : "simple-improv-session";
+  const workflow = mastra.getWorkflow(workflowId);
   const run = await workflow.createRun();
 
   const result = await run.start({
@@ -82,18 +103,33 @@ async function runImprovSession(
   });
 
   if (result.status === "success") {
-    const { quote, votes, totalScore } = result.result;
+    const { quote, votes, totalScore, decision } = result.result;
 
-    console.log(formatQuoteForDisplay(quote));
-    console.log(`\n📊 Voting Results:`);
-    votes.forEach((vote) => {
-      console.log(`  ${vote.criteria}: ${vote.score}/10 - ${vote.reasoning}`);
+    // Display quote
+    log.quote.display(quote);
+
+    // Display votes
+    log.divider();
+    log.judge.voting();
+    votes.forEach((vote: { judgeId: string; criteria: string; score: number; reasoning: string }) => {
+      log.judge.vote(vote.judgeId || vote.criteria, vote.score);
     });
-    console.log(`\n🏆 Total Score: ${totalScore}/${votes.length * 10}`);
+    log.judge.total(totalScore, votes.length * 10);
+
+    // Show approval decision if available
+    if (decision) {
+      if (decision.starred) {
+        log.approval.starred(decision.reason);
+      } else if (decision.approved) {
+        log.approval.approved(decision.reason);
+      } else {
+        log.approval.rejected(decision.reason);
+      }
+    }
 
     return result.result;
   } else {
-    console.error("Workflow failed:", result);
+    log.workflow.error("Workflow failed", new Error(JSON.stringify(result)));
     return null;
   }
 }
@@ -120,13 +156,20 @@ async function main() {
     10
   );
   const query = args.find((a) => a.startsWith("--query="))?.split("=")[1];
+  const noStorage = args.includes("--no-storage");
 
-  console.log(`
-╔════════════════════════════════════════════════════════╗
-║          GPTBASH - Quote Generator                     ║
-║          bash.org.pl style with Mastra AI              ║
-╚════════════════════════════════════════════════════════╝
-  `);
+  log.header("GPTBASH - Quote Generator");
+
+  // Check for API key
+  if (!process.env.ANTHROPIC_API_KEY && !process.env.OPENAI_API_KEY) {
+    log.agent.noApiKey();
+  }
+
+  // Try to initialize storage (optional)
+  let storageAvailable = false;
+  if (!noStorage && (mode === "improv" || mode === "improv-batch")) {
+    storageAvailable = await tryInitStorage();
+  }
 
   switch (mode) {
     case "mock":
@@ -136,11 +179,15 @@ async function main() {
       break;
 
     case "improv":
-      await runImprovSession(topic);
+      await runImprovSession(topic, 3, 5, storageAvailable);
       break;
 
     case "improv-batch":
       await runBatchImprovMode(count);
+      break;
+
+    case "stats":
+      await showStorageStats();
       break;
 
     default:
@@ -154,18 +201,58 @@ Modes:
   --mode=twitter        Fetch from Twitter/X (stub)
   --mode=improv         Run improv session with AI agents
   --mode=improv-batch   Run multiple improv sessions and rank
+  --mode=stats          Show storage statistics
 
 Options:
   --topic="..."         Topic for improv mode
   --count=N             Number of sessions for improv-batch
   --query="..."         Search query for wykop/twitter modes
+  --no-storage          Skip Redis storage (no persistence)
+
+Storage CLI:
+  npm run storage:stats     Show storage statistics
+  npm run storage:cleanup   Force cleanup to free memory
 
 Examples:
   npx tsx src/index.ts --mode=mock
   npx tsx src/index.ts --mode=improv --topic="The intern pushed to prod"
   npx tsx src/index.ts --mode=improv-batch --count=10
+  npx tsx src/index.ts --mode=improv --no-storage
       `);
   }
+
+  // Cleanup storage connection
+  if (storageAvailable) {
+    try {
+      await getStorage().disconnect();
+    } catch {
+      // Ignore disconnect errors
+    }
+  }
+}
+
+/**
+ * Show storage statistics
+ */
+async function showStorageStats() {
+  const connected = await tryInitStorage();
+  if (!connected) {
+    console.error("Cannot show stats - Redis not available");
+    return;
+  }
+
+  const storage = getStorage();
+  const stats = await storage.getStats();
+
+  console.log(`
+📊 Storage Statistics:
+   Memory: ${(stats.memoryUsedBytes / 1024 / 1024).toFixed(1)}MB / ${config.memory.maxBytes / 1024 / 1024}MB (${stats.memoryUsedPercent.toFixed(1)}%)
+   Approved: ${stats.approvedCount}
+   Rejected: ${stats.rejectedCount}
+   Pending: ${stats.pendingCount}
+   Total Generated: ${stats.totalQuotesGenerated}
+   Approval Rate: ${stats.approvalRate.toFixed(1)}%
+  `);
 }
 
 // Run if executed directly
@@ -175,7 +262,12 @@ main().catch(console.error);
 export {
   quoteGeneratorWorkflow,
   improvSessionWorkflow,
+  simpleImprovWorkflow,
   runQuoteGenerator,
   runImprovSession,
   runBatchImprovMode,
 };
+
+// Re-export storage and config
+export { config } from "./config.js";
+export { getStorage, initStorage } from "./storage/index.js";

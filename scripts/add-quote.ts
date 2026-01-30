@@ -3,6 +3,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
+import { parseQuoteContent } from '../src/types/quote-format';
 
 interface Quote {
   uuid: string;
@@ -68,6 +69,17 @@ if (args.length === 0) {
 }
 
 const content = args.join(' ');
+
+try {
+  parseQuoteContent(content);
+} catch (err) {
+  console.error('Invalid quote format.');
+  console.error(
+    err instanceof Error ? err.message : 'Expected "<nick> message" per non-empty line.'
+  );
+  process.exit(1);
+}
+
 const newQuote = addQuote(content);
 
 console.log('Quote added successfully!');

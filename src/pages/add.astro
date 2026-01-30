@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '../layouts/base-layout.astro';
 ---
 
-<BaseLayout title="bash.org.pl: dodaj cytat">
+<BaseLayout title="gptbash.com: dodaj cytat">
   <div class="add">
     <form id="addForm">
       <textarea 
@@ -29,7 +29,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </div>
 </BaseLayout>
 
-<script>
+<script type="module">
+  import { quoteInputToParsedSchema } from '../types/quote-format';
+
   const form = document.getElementById('addForm');
   const result = document.getElementById('result');
   const command = document.getElementById('command');
@@ -37,11 +39,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const textarea = document.getElementById('quote') as HTMLTextAreaElement;
-    const quote = textarea.value.trim();
+    const textareaEl = document.getElementById('quote');
+    if (!(textareaEl instanceof HTMLTextAreaElement)) return;
+
+    const adultEl = document.getElementById('adult');
+    const adult =
+      adultEl instanceof HTMLInputElement && adultEl.type === 'checkbox'
+        ? adultEl.checked
+        : false;
+
+    const quote = textareaEl.value.trim();
     
     if (!quote) {
       alert('Wprowadź treść cytatu');
+      return;
+    }
+
+    const parsed = quoteInputToParsedSchema.safeParse({ content: quote, adult });
+    if (!parsed.success) {
+      // Zod errors are usually more specific than generic alerts
+      alert(parsed.error.issues[0]?.message ?? 'Nieprawidłowy format cytatu');
       return;
     }
     

@@ -1,6 +1,6 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import QuoteCard from '../components/QuoteCard';
+import BaseLayout from '../layouts/base-layout.astro';
+import QuoteCard from '../components/quote-card';
 import quotesData from '../data/quotes.json';
 
 export function getStaticPaths() {
@@ -24,7 +24,7 @@ interface Props {
 const { quote } = Astro.props;
 ---
 
-<BaseLayout title={`bash.org.pl: cytat #${quote.id}`}>
+<BaseLayout title={`gptbash.com: cytat #${quote.id}`}>
   <QuoteCard quote={quote} showLink={false} client:load />
   
   <p style="margin: 10px 17px; font-size: 12px;">

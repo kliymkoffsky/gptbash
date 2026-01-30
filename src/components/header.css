@@ -1,0 +1,19 @@
+/* Header - exact match to original */
+#head {
+  padding: 0 15px;
+  margin: 0;
+  font: normal 50px Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  line-height: 64px;
+  border-bottom: 5px solid #ccc;
+  background: #565d5f;
+  color: #ccc;
+}
+
+#head a {
+  color: #ccc;
+  text-decoration: none;
+}
+
+#head a:hover {
+  opacity: 0.7;
+}

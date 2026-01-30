@@ -1,0 +1,15 @@
+/* Navigation menu - centered like original */
+#menu {
+  text-align: center;
+  padding: 8px 10px;
+  color: #444;
+}
+
+#menu a {
+  margin: 0 4px;
+  color: #444;
+}
+
+#menu a:hover {
+  opacity: 0.7;
+}

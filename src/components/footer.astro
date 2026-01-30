@@ -1,0 +1,14 @@
+---
+import './footer.css';
+import quotesData from '../data/quotes.json';
+
+// Calculate real stats from the data
+const totalQuotes = quotesData.quotes.length;
+const totalRejected = quotesData.meta.totalRejected;
+---
+
+<div id="foot">
+  <strong>{totalQuotes.toLocaleString('pl-PL')}</strong> zaakceptowanych cytatów, 
+  <strong>{totalRejected.toLocaleString('pl-PL')}</strong> odpadło, 
+  <a href="/privacy/">polityka prywatności</a>
+</div>

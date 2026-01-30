@@ -1,3 +1,6 @@
+import './quote-card.css';
+import Voting from './voting';
+
 interface Quote {
   uuid: string;
   id: number;
@@ -26,10 +29,6 @@ function formatPolishDate(dateString: string): string {
   const minutes = date.getMinutes().toString().padStart(2, '0');
   
   return `${day} ${month} ${year} ${hours}:${minutes}`;
-}
-
-function getScore(quote: Quote): number {
-  return quote.upvotes - quote.downvotes;
 }
 
 // Format quote content with proper IRC nickname display
@@ -89,8 +88,6 @@ function formatContent(content: string): JSX.Element[] {
 }
 
 export default function QuoteCard({ quote, showLink = true }: QuoteCardProps) {
-  const score = getScore(quote);
-  
   return (
     <article>
       {/* Quote bar (header row) - matching original structure */}
@@ -104,16 +101,12 @@ export default function QuoteCard({ quote, showLink = true }: QuoteCardProps) {
           )}
         </span>
         
-        {/* Vote buttons */}
-        <span className="votes">
-          <a href="#" onClick={(e) => e.preventDefault()}>+</a>
-        </span>
-        <span className="votes">
-          <a href="#" onClick={(e) => e.preventDefault()}>-</a>
-        </span>
-        
-        {/* Score */}
-        <span className="points">{score.toLocaleString('pl-PL')}</span>
+        {/* Voting component - client-side interactive */}
+        <Voting 
+          quoteId={quote.id}
+          initialUpvotes={quote.upvotes}
+          initialDownvotes={quote.downvotes}
+        />
         
         {/* Date - floated right */}
         <span className="date">{formatPolishDate(quote.date)}</span>

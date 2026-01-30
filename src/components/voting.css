@@ -1,0 +1,27 @@
+/* Vote buttons */
+.votes {
+  margin: 0px 2px;
+  padding: 0px 6px;
+  font-weight: bold;
+}
+
+.votes a {
+  color: #565d5f;
+  text-decoration: none;
+}
+
+.votes a:hover {
+  opacity: 0.7;
+}
+
+.votes.voted a {
+  color: #2a7d2a;
+}
+
+.votes.voted:last-of-type a {
+  color: #b33;
+}
+
+.points {
+  margin: 1px 1px;
+}

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /*
- * bash.org.pl clone stylesheet
- * Based on original bash.org.pl CSS by Krzysztof Urbaniak
+ * gptbash.com stylesheet
+ * Base/global styles only - component styles are co-located
  */
 
 /* Base styles - matching original */
@@ -38,148 +38,14 @@ a {
   text-decoration: none;
 }
 
-/* Header - exact match to original */
-#head {
-  padding: 0 15px;
-  margin: 0;
-  font: normal 50px Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-  line-height: 64px;
-  border-bottom: 5px solid #ccc;
-  background: #565d5f;
-  color: #ccc;
-}
-
-#head a {
-  color: #ccc;
-  text-decoration: none;
-}
-
-#head a:hover {
-  opacity: 0.7;
-}
-
-/* Navigation menu - centered like original */
-#menu {
-  text-align: center;
-  padding: 8px 10px;
-  color: #444;
-}
-
-#menu a {
-  margin: 0 4px;
-  color: #444;
-}
-
-#menu a:hover {
-  opacity: 0.7;
-}
-
 /* Content container */
 #content {
   background: #fff;
   padding-bottom: 20px;
 }
 
-/* Quote bar (header row) - exact match */
-.bar {
-  margin: 10px 15px 2px 15px;
-  padding: 3px;
-  border-bottom: 1px solid #cfd1d1;
-  background: #f4f4f4;
-  color: #565d5f;
-}
-
-/* Quote ID */
-.qid {
-  margin: 1px 6px;
-}
-
-.qid a {
-  color: #565d5f;
-  font-weight: bold;
-}
-
-/* Vote buttons */
-.votes {
-  margin: 0px 2px;
-  padding: 0px 6px;
-  font-weight: bold;
-}
-
-.votes a {
-  color: #565d5f;
-}
-
-.points {
-  margin: 1px 1px;
-}
-
 .right {
   float: right;
-}
-
-/* Quote content - exact match */
-.quote,
-.quote p {
-  padding: 0;
-  margin: 0;
-  font-family: "Lucida Console", "Droid Sans Mono", "Liberation Sans Mono", "DejaVu Sans Mono", Monaco, monospace;
-  margin-bottom: 15px;
-}
-
-div.quote {
-  margin: 2px 17px;
-  color: #444;
-  white-space: pre-wrap;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-/* Footer - exact match */
-#foot {
-  border-top: 4px solid #ccc;
-  padding: 10px;
-  text-align: right;
-  clear: both;
-  margin: 0;
-  background: #565d5f;
-  color: #ccc;
-}
-
-#foot a {
-  color: #ccc;
-}
-
-/* Pagination - exact match */
-.pagination {
-  margin: 4px 16px;
-  font-size: 0.9em;
-}
-
-.pagination a,
-.pagination .page,
-.pagination .next,
-.pagination .prev {
-  padding: 1px 4px;
-  border: 1px solid #cfd1d1;
-  background: #f4f4f4;
-  color: #565d5f;
-}
-
-.pagination .disabled {
-  opacity: 0.5;
-}
-
-.pagination .current {
-  font-weight: bold;
-  opacity: 0.8;
-}
-
-/* Date styling */
-.date {
-  float: right;
-  color: #565d5f;
-  font-size: 13px;
 }
 
 /* Typography */
@@ -240,11 +106,4 @@ h3 {
 ::selection {
   background-color: #565d5f;
   color: white;
-}
-
-/* Utility for clearing floats */
-.clearfix::after {
-  content: "";
-  display: table;
-  clear: both;
 }

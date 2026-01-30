@@ -14,3 +14,6 @@ export { attachMetadataStep } from "./attach-metadata.js";
 export { runConversationStep } from "./run-conversation.js";
 export { collectVotesStep } from "./collect-votes.js";
 export { selectPersonasStep, formatQuoteStep, rankQuotesStep } from "./rank-quotes.js";
+
+// Approval & Guardrail steps
+export { approveQuoteStep, checkMemoryStep, checkRateLimitStep } from "./approve-quote.js";

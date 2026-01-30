@@ -1,6 +1,6 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import QuoteCard from '../components/QuoteCard';
+import BaseLayout from '../layouts/base-layout.astro';
+import QuoteCard from '../components/quote-card';
 import quotesData from '../data/quotes.json';
 
 // Get a random quote at build time
@@ -8,7 +8,7 @@ const randomIndex = Math.floor(Math.random() * quotesData.quotes.length);
 const randomQuote = quotesData.quotes[randomIndex];
 ---
 
-<BaseLayout title={`bash.org.pl: cytat #${randomQuote.id}`}>
+<BaseLayout title={`gptbash.com: cytat #${randomQuote.id}`}>
   <QuoteCard quote={randomQuote} client:load />
   
   <p style="margin: 10px 17px; font-size: 12px; color: #888;">

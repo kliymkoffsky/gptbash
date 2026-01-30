@@ -1,34 +1,43 @@
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
 import { BashQuoteSchema, VoteSchema, JUDGES } from "../types/index.js";
+import { log } from "../utils/logger.js";
+import { hasApiKey } from "../utils/api-check.js";
 
 /**
  * Collect Votes Step (Improv Mode)
  *
  * Runs all judge agents in parallel to vote on a generated quote.
  * Each judge evaluates based on their specific criteria.
+ * Passes through topic and personas for storage.
  */
 export const collectVotesStep = createStep({
   id: "collect-votes",
   inputSchema: z.object({
     quote: BashQuoteSchema,
+    topic: z.string().optional(),
+    personas: z.array(z.string()).optional(),
   }),
   outputSchema: z.object({
     quote: BashQuoteSchema,
     votes: z.array(VoteSchema),
+    topic: z.string().optional(),
+    personas: z.array(z.string()).optional(),
   }),
   execute: async ({ inputData, mastra }) => {
-    const { quote } = inputData;
+    const { quote, topic, personas } = inputData;
 
     // Format quote for judging
     const quoteText = formatQuoteForJudging(quote);
+
+    log.judge.voting();
 
     // Run all judges in parallel
     const votePromises = JUDGES.map(async (judgeConfig) => {
       const agent = mastra?.getAgent?.(judgeConfig.id);
 
-      if (!agent) {
-        // Fallback: generate a random score
+      // Skip agent call if no API key - use fallback immediately
+      if (!agent || !hasApiKey()) {
         return generateFallbackVote(judgeConfig, quoteText);
       }
 
@@ -41,14 +50,14 @@ export const collectVotesStep = createStep({
 
         return parseJudgeResponse(judgeConfig, result.text || "");
       } catch (error) {
-        console.error(`Error getting vote from ${judgeConfig.id}:`, error);
+        log.agent.error(judgeConfig.id, error);
         return generateFallbackVote(judgeConfig, quoteText);
       }
     });
 
     const votes = await Promise.all(votePromises);
 
-    return { quote, votes };
+    return { quote, votes, topic, personas };
   },
 });
 

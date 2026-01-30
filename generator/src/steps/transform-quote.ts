@@ -1,6 +1,8 @@
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
 import { MessageSchema, QuoteLineSchema } from "../types/index.js";
+import { log } from "../utils/logger.js";
+import { hasApiKey } from "../utils/api-check.js";
 
 /**
  * Transform Quote Step
@@ -26,7 +28,7 @@ export const transformQuoteStep = createStep({
     // Try to use the quote-stylist agent for AI-enhanced transformation
     const agent = mastra?.getAgent?.("quote-stylist");
 
-    if (agent) {
+    if (agent && hasApiKey()) {
       try {
         // Format messages for the agent
         const conversationText = messages
@@ -50,7 +52,8 @@ export const transformQuoteStep = createStep({
           return { lines, source, sourceUrl };
         }
       } catch (error) {
-        console.warn("Agent transformation failed, falling back to basic transform:", error);
+        log.agent.error("quote-stylist", error);
+        log.warning("Using basic transform (no AI enhancement)");
       }
     }
 

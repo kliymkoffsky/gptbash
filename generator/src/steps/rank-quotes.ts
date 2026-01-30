@@ -1,6 +1,7 @@
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
 import { BashQuoteSchema, VoteSchema, ImprovSessionOutputSchema } from "../types/index.js";
+import { log } from "../utils/logger.js";
 
 /**
  * Rank Quotes Step (Improv Mode)
@@ -13,10 +14,18 @@ export const rankQuotesStep = createStep({
   inputSchema: z.object({
     quote: BashQuoteSchema,
     votes: z.array(VoteSchema),
+    topic: z.string().optional(),
+    personas: z.array(z.string()).optional(),
   }),
-  outputSchema: ImprovSessionOutputSchema,
+  outputSchema: z.object({
+    quote: BashQuoteSchema,
+    votes: z.array(VoteSchema),
+    totalScore: z.number(),
+    topic: z.string().optional(),
+    personas: z.array(z.string()).optional(),
+  }),
   execute: async ({ inputData }) => {
-    const { quote, votes } = inputData;
+    const { quote, votes, topic, personas } = inputData;
 
     // Calculate total score (sum of all judge scores)
     const totalScore = votes.reduce((sum, vote) => sum + vote.score, 0);
@@ -24,23 +33,14 @@ export const rankQuotesStep = createStep({
     // Calculate average for logging
     const averageScore = votes.length > 0 ? totalScore / votes.length : 0;
 
-    // Log the results
-    console.log(`\n=== Quote Ranking ===`);
-    console.log(`Quote ID: ${quote.id}`);
-    console.log(`Lines: ${quote.lines.length}`);
-    console.log(`\nVotes:`);
-    votes.forEach((vote) => {
-      console.log(`  ${vote.judgeId}: ${vote.score}/10 (${vote.criteria})`);
-      console.log(`    Reasoning: ${vote.reasoning}`);
-    });
-    console.log(`\nTotal Score: ${totalScore}/${votes.length * 10}`);
-    console.log(`Average: ${averageScore.toFixed(1)}/10`);
-    console.log(`=====================\n`);
+    // Log the results (now handled by parent)
 
     return {
       quote,
       votes,
       totalScore,
+      topic,
+      personas,
     };
   },
 });
@@ -73,11 +73,7 @@ export const selectPersonasStep = createStep({
     const selected = shuffled.slice(0, numPersonas);
     const selectedIds = selected.map((p) => p.id);
 
-    console.log(`\n=== Improv Session ===`);
-    console.log(`Topic: "${topic}"`);
-    console.log(`Personas: ${selected.map((p) => p.nickname).join(", ")}`);
-    console.log(`Rounds: ${numRounds}`);
-    console.log(`======================\n`);
+    log.persona.selected(selected.map((p) => p.nickname));
 
     return {
       topic,
@@ -91,6 +87,7 @@ export const selectPersonasStep = createStep({
  * Format Quote Step
  *
  * Formats the conversation messages into a bash.org.pl style quote.
+ * Passes through topic and personas for storage.
  */
 export const formatQuoteStep = createStep({
   id: "format-quote",
@@ -102,12 +99,15 @@ export const formatQuoteStep = createStep({
       })
     ),
     topic: z.string(),
+    selectedPersonas: z.array(z.string()).optional(),
   }),
   outputSchema: z.object({
     quote: BashQuoteSchema,
+    topic: z.string(),
+    personas: z.array(z.string()),
   }),
   execute: async ({ inputData }) => {
-    const { messages, topic } = inputData;
+    const { messages, topic, selectedPersonas = [] } = inputData;
 
     // Generate quote ID
     const id = Math.random().toString(36).substring(2, 10);
@@ -128,6 +128,6 @@ export const formatQuoteStep = createStep({
       },
     };
 
-    return { quote };
+    return { quote, topic, personas: selectedPersonas };
   },
 });

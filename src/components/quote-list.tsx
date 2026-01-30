@@ -1,5 +1,5 @@
-import QuoteCard from './QuoteCard';
-import Pagination from './Pagination';
+import QuoteCard from './quote-card';
+import Pagination from './pagination';
 
 interface Quote {
   uuid: string;

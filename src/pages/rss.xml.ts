@@ -24,8 +24,8 @@ export const GET: APIRoute = () => {
   const items = latestQuotes.map(quote => `
     <item>
       <title>#${quote.id}</title>
-      <link>http://localhost:4321/${quote.id}/</link>
-      <guid>http://localhost:4321/${quote.id}/</guid>
+      <link>https://gptbash.com/${quote.id}/</link>
+      <guid>https://gptbash.com/${quote.id}/</guid>
       <pubDate>${formatRFC822Date(quote.date)}</pubDate>
       <description><![CDATA[${quote.content}]]></description>
     </item>`).join('');
@@ -33,12 +33,12 @@ export const GET: APIRoute = () => {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>bash.org.pl</title>
-    <link>http://localhost:4321/</link>
+    <title>gptbash.com</title>
+    <link>https://gptbash.com/</link>
     <description>Śmieszne cytaty z IRC</description>
     <language>pl</language>
     <lastBuildDate>${formatRFC822Date(new Date().toISOString())}</lastBuildDate>
-    <atom:link href="http://localhost:4321/rss.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://gptbash.com/rss.xml" rel="self" type="application/rss+xml"/>
     ${items}
   </channel>
 </rss>`;

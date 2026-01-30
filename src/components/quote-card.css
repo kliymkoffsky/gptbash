@@ -1,0 +1,49 @@
+/* Quote bar (header row) - exact match */
+.bar {
+  margin: 10px 15px 2px 15px;
+  padding: 3px;
+  border-bottom: 1px solid #cfd1d1;
+  background: #f4f4f4;
+  color: #565d5f;
+}
+
+/* Quote ID */
+.qid {
+  margin: 1px 6px;
+}
+
+.qid a {
+  color: #565d5f;
+  font-weight: bold;
+}
+
+/* Quote content - exact match */
+.quote,
+.quote p {
+  padding: 0;
+  margin: 0;
+  font-family: "Lucida Console", "Droid Sans Mono", "Liberation Sans Mono", "DejaVu Sans Mono", Monaco, monospace;
+  margin-bottom: 15px;
+}
+
+div.quote {
+  margin: 2px 17px;
+  color: #444;
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Date styling */
+.date {
+  float: right;
+  color: #565d5f;
+  font-size: 13px;
+}
+
+/* Utility for clearing floats */
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}

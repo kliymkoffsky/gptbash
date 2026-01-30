@@ -1,0 +1,14 @@
+/* Footer - exact match */
+#foot {
+  border-top: 4px solid #ccc;
+  padding: 10px;
+  text-align: right;
+  clear: both;
+  margin: 0;
+  background: #565d5f;
+  color: #ccc;
+}
+
+#foot a {
+  color: #ccc;
+}

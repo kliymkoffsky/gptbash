@@ -1,6 +1,8 @@
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
 import { MessageSchema, PERSONAS } from "../types/index.js";
+import { log } from "../utils/logger.js";
+import { hasApiKey } from "../utils/api-check.js";
 
 /**
  * Run Conversation Step (Improv Mode)
@@ -18,6 +20,7 @@ export const runConversationStep = createStep({
   outputSchema: z.object({
     messages: z.array(MessageSchema),
     topic: z.string(),
+    selectedPersonas: z.array(z.string()),
   }),
   execute: async ({ inputData, mastra }) => {
     const { topic, selectedPersonas, numRounds } = inputData;
@@ -31,22 +34,19 @@ export const runConversationStep = createStep({
       for (const personaId of selectedPersonas) {
         // Get the agent for this persona
         const agent = mastra?.getAgent?.(personaId);
+        const persona = PERSONAS.find((p) => p.id === personaId);
+        const nickname = persona?.nickname || personaId;
 
-        if (!agent) {
-          // Fallback: generate a placeholder message
-          const persona = PERSONAS.find((p) => p.id === personaId);
-          const nickname = persona?.nickname || personaId;
+        // Skip agent call if no API key - use fallback immediately
+        if (!agent || !hasApiKey()) {
           messages.push({
             author: nickname,
-            content: `[${nickname} would respond here]`,
+            content: generateFallbackMessage(topic, messages, nickname),
           });
           continue;
         }
 
         try {
-          // Find persona config for nickname
-          const persona = PERSONAS.find((p) => p.id === personaId);
-          const nickname = persona?.nickname || personaId;
 
           // Generate response with conversation context
           const prompt = buildConversationPrompt(
@@ -71,7 +71,7 @@ export const runConversationStep = createStep({
           // Update conversation history
           conversationHistory += `<${nickname}> ${responseText}\n`;
         } catch (error) {
-          console.error(`Error generating response for ${personaId}:`, error);
+          log.agent.error(personaId, error);
           const persona = PERSONAS.find((p) => p.id === personaId);
           messages.push({
             author: persona?.nickname || personaId,
@@ -81,7 +81,7 @@ export const runConversationStep = createStep({
       }
     }
 
-    return { messages, topic };
+    return { messages, topic, selectedPersonas };
   },
 });
 
@@ -144,4 +144,70 @@ function extractResponseText(text: string): string {
   }
 
   return cleaned;
+}
+
+/**
+ * Generate a fallback message when no API key is available
+ */
+function generateFallbackMessage(
+  topic: string,
+  messages: { author: string; content: string }[],
+  nickname: string
+): string {
+  // Sample responses based on nickname patterns
+  const sampleResponses: Record<string, string[]> = {
+    devnull: [
+      "to brzmi jak O(n²) problem",
+      "sprawdziłeś stack overflow?",
+      "u mnie działa",
+      "może spróbuj wyłączyć i włączyć",
+      "to prosty fix, tylko 3 sprinty",
+      "kto to pisał? ...ja? niemożliwe",
+    ],
+    eternal_student: [
+      "deadline za 2h, jeszcze mogę pospać",
+      "kto by się uczył przed sesją",
+      "żyję na samych energetykach",
+      "jeszcze tylko 5 lat studiów",
+      "a po co mi ta wiedza w życiu",
+      "najpierw kawa, potem myślenie",
+    ],
+    root_cause: [
+      "masz backup?",
+      "to piątek, czekam na alert",
+      "99.9% uptime to i tak za dużo",
+      "ja już nic nie czuję",
+      "ticket albo się nie stało",
+      "restart rozwiązuje 90% problemów",
+    ],
+    WojciechXP: [
+      "A CO TO JEST???",
+      "W moich czasach to było prostsze...",
+      "To chyba jakiś wirus!",
+      "Jak to wyłączyć...",
+      "A nie można po prostu zadzwonić?",
+      "SYNU POMÓŻ",
+    ],
+    "xXx_Pr0Gamer_xXx": [
+      "ez clap",
+      "nie moja wina, lag był",
+      "teammate diff",
+      "gram od 3 w nocy",
+      "CLUTCH OR KICK",
+      "git gud",
+    ],
+  };
+
+  // Find matching responses for this nickname
+  const responses = sampleResponses[nickname] || [
+    "hmm...",
+    "ciekawe",
+    "no nie wiem",
+    "a to dobre",
+    "lol",
+  ];
+
+  // Pick a semi-random response based on message count for variety
+  const index = messages.length % responses.length;
+  return responses[index];
 }

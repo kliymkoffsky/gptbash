@@ -5,4 +5,4 @@
  */
 
 export { quoteGeneratorWorkflow } from "./quote-generator.js";
-export { improvSessionWorkflow, runBatchImprov } from "./improv-session.js";
+export { improvSessionWorkflow, simpleImprovWorkflow, runBatchImprov } from "./improv-session.js";
