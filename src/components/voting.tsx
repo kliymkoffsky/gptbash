@@ -72,6 +72,7 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
   };
 
   const score = getAdjustedScore();
+  const baseScore = initialUpvotes - initialDownvotes;
 
   // Show non-interactive version during SSR
   if (!mounted) {
@@ -83,7 +84,7 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
         <span className="votes">
           <a href="#">-</a>
         </span>
-        <span className="points">{formatNumber(initialUpvotes - initialDownvotes)}</span>
+        <span className="points">{formatNumber(baseScore)}</span>
       </>
     );
   }
@@ -118,7 +119,7 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
           -
         </button>
       </span>
-      <span className="points" aria-live="polite" aria-atomic="true">
+      <span className="points" aria-live="polite" aria-atomic="true" suppressHydrationWarning>
         {formatNumber(score)}
       </span>
     </>
