@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QuoteList from '../../components/QuoteList';
+import quotesData from '../../data/quotes.json';
+
+const QUOTES_PER_PAGE = 20;
+
+// Sort quotes by score (upvotes - downvotes), highest first
+const allQuotes = [...quotesData.quotes]
+  .sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
+
+const totalPages = Math.ceil(allQuotes.length / QUOTES_PER_PAGE);
+const currentPage = 1;
+
+// Get quotes for page 1
+const topQuotes = allQuotes.slice(0, QUOTES_PER_PAGE);
+---
+
+<BaseLayout title="bash.org.pl: top">
+  <QuoteList 
+    quotes={topQuotes} 
+    currentPage={currentPage}
+    totalPages={totalPages}
+    baseUrl="/top"
+    client:load 
+  />
+</BaseLayout>

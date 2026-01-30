@@ -1,0 +1,24 @@
+{
+  "name": "gptbash-generator",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Bash.org.pl style quote generator using Mastra AI workflows",
+  "scripts": {
+    "dev": "mastra dev",
+    "start": "tsx src/index.ts",
+    "improv": "tsx src/index.ts --mode improv",
+    "improv-batch": "tsx src/index.ts --mode improv-batch",
+    "storage:stats": "tsx src/storage/cli.ts stats",
+    "storage:cleanup": "tsx src/storage/cli.ts cleanup"
+  },
+  "dependencies": {
+    "@mastra/core": "latest",
+    "ioredis": "^5.4.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

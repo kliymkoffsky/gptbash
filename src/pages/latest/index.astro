@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QuoteList from '../../components/QuoteList';
+import quotesData from '../../data/quotes.json';
+
+const QUOTES_PER_PAGE = 20;
+
+// Sort quotes by date (newest first)
+const allQuotes = [...quotesData.quotes]
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+const totalPages = Math.ceil(allQuotes.length / QUOTES_PER_PAGE);
+const currentPage = 1;
+
+// Get quotes for page 1
+const latestQuotes = allQuotes.slice(0, QUOTES_PER_PAGE);
+---
+
+<BaseLayout title="bash.org.pl: najnowsze">
+  <QuoteList 
+    quotes={latestQuotes} 
+    currentPage={currentPage}
+    totalPages={totalPages}
+    baseUrl="/latest"
+    client:load 
+  />
+</BaseLayout>

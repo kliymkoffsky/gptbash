@@ -1,0 +1,161 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="bash.org.pl: dodaj cytat">
+  <div class="add">
+    <form id="addForm">
+      <textarea 
+        id="quote" 
+        name="quote" 
+        rows="12"
+      ></textarea>
+      
+      <div class="checkbox-row">
+        <input type="checkbox" id="adult" name="adult" value="1" /><br />
+        <label for="adult">cytat zawiera treści przeznaczone dla dorosłych odbiorców</label>
+      </div>
+      
+      <input type="submit" value="dodaj cytat" class="submit-btn" />
+    </form>
+
+    <div id="result">
+      <p>Skopiuj i uruchom komendę w terminalu:</p>
+      <pre id="command"></pre>
+      <button id="copyBtn" class="submit-btn" style="margin-top: 10px; width: auto; padding: 5px 15px;">
+        Kopiuj
+      </button>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('addForm');
+  const result = document.getElementById('result');
+  const command = document.getElementById('command');
+  const copyBtn = document.getElementById('copyBtn');
+  
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const textarea = document.getElementById('quote') as HTMLTextAreaElement;
+    const quote = textarea.value.trim();
+    
+    if (!quote) {
+      alert('Wprowadź treść cytatu');
+      return;
+    }
+    
+    // Escape quotes for shell
+    const escaped = quote
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\$/g, '\\$')
+      .replace(/`/g, '\\`');
+    
+    const cmd = `npm run add-quote "${escaped}"`;
+    
+    if (command && result) {
+      command.textContent = cmd;
+      result.style.display = 'block';
+      result.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+  
+  copyBtn?.addEventListener('click', () => {
+    const cmd = command?.textContent;
+    if (cmd) {
+      navigator.clipboard.writeText(cmd).then(() => {
+        if (copyBtn) {
+          copyBtn.textContent = 'Skopiowano!';
+          setTimeout(() => {
+            copyBtn.textContent = 'Kopiuj';
+          }, 2000);
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  .add {
+    text-align: center;
+    padding: 0 15px;
+  }
+  
+  .add form {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .add textarea {
+    width: 98%;
+    font-family: "Lucida Console", "Droid Sans Mono", Monaco, monospace;
+    font-size: 13px;
+    padding: 8px;
+    border: 1px solid #aaa;
+    resize: vertical;
+  }
+  
+  .add textarea:focus {
+    outline: none;
+    border-color: #666;
+  }
+  
+  .checkbox-row {
+    margin: 10px 0 20px 0;
+    text-align: center;
+  }
+  
+  .checkbox-row input {
+    margin-bottom: 5px;
+  }
+  
+  .checkbox-row label {
+    color: #555;
+    font-size: 13px;
+  }
+  
+  .submit-btn {
+    display: block;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2px 20px;
+    background: #565d5f;
+    border: 1px solid #ccc;
+    color: #ccc;
+    font-size: 13px;
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  
+  .submit-btn:hover {
+    opacity: 0.9;
+  }
+  
+  #result {
+    display: none;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 15px;
+    background: #f4f4f4;
+    border: 1px solid #cfd1d1;
+    text-align: left;
+  }
+  
+  #result p {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    color: #666;
+  }
+  
+  #result pre {
+    background: #333;
+    color: #0f0;
+    padding: 10px;
+    overflow-x: auto;
+    font-size: 12px;
+    font-family: "Lucida Console", monospace;
+    margin: 0;
+  }
+</style>

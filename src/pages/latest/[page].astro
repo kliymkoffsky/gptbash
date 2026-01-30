@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QuoteList from '../../components/QuoteList';
+import quotesData from '../../data/quotes.json';
+
+const QUOTES_PER_PAGE = 20;
+
+// Sort quotes by date (newest first)
+const allQuotes = [...quotesData.quotes]
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+const totalPages = Math.ceil(allQuotes.length / QUOTES_PER_PAGE);
+
+export function getStaticPaths() {
+  const QUOTES_PER_PAGE = 20;
+  const allQuotes = [...quotesData.quotes]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  
+  const totalPages = Math.ceil(allQuotes.length / QUOTES_PER_PAGE);
+  
+  // Generate paths for pages 2 onwards (page 1 is handled by index.astro)
+  return Array.from({ length: totalPages - 1 }, (_, i) => ({
+    params: { page: String(i + 2) },
+  }));
+}
+
+const { page } = Astro.params;
+const currentPage = parseInt(page);
+
+// Get quotes for current page
+const startIndex = (currentPage - 1) * QUOTES_PER_PAGE;
+const latestQuotes = allQuotes.slice(startIndex, startIndex + QUOTES_PER_PAGE);
+---
+
+<BaseLayout title={`bash.org.pl: najnowsze - strona ${currentPage}`}>
+  <QuoteList 
+    quotes={latestQuotes} 
+    currentPage={currentPage}
+    totalPages={totalPages}
+    baseUrl="/latest"
+    client:load 
+  />
+</BaseLayout>
