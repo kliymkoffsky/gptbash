@@ -22,6 +22,7 @@ const latestQuotes = allQuotes.slice(0, QUOTES_PER_PAGE);
     currentPage={currentPage}
     totalPages={totalPages}
     baseUrl="/latest"
+    enableInfiniteScroll={true}
     client:load 
   />
 </BaseLayout>

@@ -38,6 +38,7 @@ const topQuotes = allQuotes.slice(startIndex, startIndex + QUOTES_PER_PAGE);
     currentPage={currentPage}
     totalPages={totalPages}
     baseUrl="/top"
+    enableInfiniteScroll={true}
     client:load 
   />
 </BaseLayout>
