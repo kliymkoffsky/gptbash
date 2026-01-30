@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import quotesData from '../data/quotes.json';
+import { formatRFC822Date } from '../utils/formatters';
 
 function escapeXml(text: string): string {
   return text
@@ -8,11 +9,6 @@ function escapeXml(text: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
-}
-
-function formatRFC822Date(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toUTCString();
 }
 
 export const GET: APIRoute = () => {

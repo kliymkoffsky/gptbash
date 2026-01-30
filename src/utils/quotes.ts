@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
+import { formatPolishDate } from './formatters';
 
 export interface Quote {
   uuid: string;
@@ -87,18 +88,5 @@ export function getQuoteScore(quote: Quote): number {
   return quote.upvotes - quote.downvotes;
 }
 
-export function formatPolishDate(dateString: string): string {
-  const date = new Date(dateString);
-  const months = [
-    'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
-    'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'
-  ];
-  
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  
-  return `${day} ${month} ${year} ${hours}:${minutes}`;
-}
+// Re-export formatPolishDate from formatters for backwards compatibility
+export { formatPolishDate };

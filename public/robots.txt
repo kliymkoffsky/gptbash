@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://gptbash.com/sitemap.xml
+
+# Disallow duplicate content from JSON API endpoints
+Disallow: /*.json
+
+# Allow crawling of all pages
+Allow: /latest/
+Allow: /top/
+Allow: /random/
+Allow: /add/

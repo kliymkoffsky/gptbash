@@ -1,6 +1,6 @@
-/* Navigation menu - centered like original */
+/* Navigation menu */
 #menu {
-  text-align: center;
+  text-align: right;
   padding: 8px 10px;
   color: #444;
 }

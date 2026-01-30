@@ -16,7 +16,11 @@ const currentPage = 1;
 const latestQuotes = allQuotes.slice(0, QUOTES_PER_PAGE);
 ---
 
-<BaseLayout title="gptbash.com: najnowsze">
+<BaseLayout 
+  title="gptbash.com: najnowsze"
+  description="Najnowsze śmieszne cytaty z IRC - świeżo dodane rozmowy i zabawne wymianki zdań."
+  canonical="https://gptbash.com/latest/"
+>
   <QuoteList 
     quotes={latestQuotes} 
     currentPage={currentPage}

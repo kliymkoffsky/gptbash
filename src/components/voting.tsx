@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './voting.css';
+import { formatNumber } from '../utils/formatters';
+import { trackVote } from '../utils/analytics';
 
 interface VotingProps {
   quoteId: number;
@@ -60,10 +62,12 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
       // Clicking same vote again removes it
       setUserVote(null);
       storeVote(quoteId, null);
+      trackVote(quoteId, 'remove_vote');
     } else {
       // Set new vote
       setUserVote(voteType);
       storeVote(quoteId, voteType);
+      trackVote(quoteId, voteType === 'up' ? 'upvote' : 'downvote');
     }
   };
 
@@ -79,7 +83,7 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
         <span className="votes">
           <a href="#">-</a>
         </span>
-        <span className="points">{(initialUpvotes - initialDownvotes).toLocaleString('pl-PL')}</span>
+        <span className="points">{formatNumber(initialUpvotes - initialDownvotes)}</span>
       </>
     );
   }
@@ -87,30 +91,36 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
   return (
     <>
       <span className={`votes ${userVote === 'up' ? 'voted' : ''}`}>
-        <a 
-          href="#" 
+        <button
+          type="button"
           onClick={(e) => {
             e.preventDefault();
             handleVote('up');
           }}
+          aria-label={userVote === 'up' ? 'Cofnij głos za' : 'Głosuj za cytat'}
+          aria-pressed={userVote === 'up'}
           title={userVote === 'up' ? 'Cofnij głos' : 'Głosuj za'}
         >
           +
-        </a>
+        </button>
       </span>
       <span className={`votes ${userVote === 'down' ? 'voted' : ''}`}>
-        <a 
-          href="#" 
+        <button
+          type="button"
           onClick={(e) => {
             e.preventDefault();
             handleVote('down');
           }}
+          aria-label={userVote === 'down' ? 'Cofnij głos przeciw' : 'Głosuj przeciw cytatowi'}
+          aria-pressed={userVote === 'down'}
           title={userVote === 'down' ? 'Cofnij głos' : 'Głosuj przeciw'}
         >
           -
-        </a>
+        </button>
       </span>
-      <span className="points">{score.toLocaleString('pl-PL')}</span>
+      <span className="points" aria-live="polite" aria-atomic="true">
+        {formatNumber(score)}
+      </span>
     </>
   );
 }

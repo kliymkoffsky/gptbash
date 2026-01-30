@@ -2,10 +2,33 @@
 import './nav.css';
 ---
 
-<div id="menu">
-  <a href="/latest/">najnowsze</a>
-  <a href="/top/">top</a>
-  <a href="/random/">losowe</a>
-  <a href="/add/">dodaj</a>
-  <a href="/rss.xml">rss</a>
-</div>
+<nav id="menu" aria-label="Nawigacja główna">
+  <a href="/latest/" data-track-nav="latest">najnowsze</a>
+  <a href="/top/" data-track-nav="top">top</a>
+  <a href="/random/" data-track-nav="random">losowe</a>
+  <a href="/add/" data-track-nav="add">dodaj</a>
+  <a href="/rss.xml" data-track-nav="rss">rss</a>
+</nav>
+
+<script>
+  import { trackNavigation, trackRandomQuote } from '../utils/analytics';
+
+  // Track navigation clicks
+  document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('[data-track-nav]');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const destination = target.getAttribute('data-track-nav');
+        if (destination) {
+          trackNavigation(destination);
+          
+          // Special tracking for random page
+          if (destination === 'random') {
+            trackRandomQuote();
+          }
+        }
+      });
+    });
+  });
+</script>

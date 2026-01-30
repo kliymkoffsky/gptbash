@@ -1,5 +1,7 @@
 import './quote-card.css';
 import Voting from './voting';
+import { formatPolishDate, getISODateTime } from '../utils/formatters';
+import { trackQuoteView } from '../utils/analytics';
 
 interface Quote {
   uuid: string;
@@ -13,22 +15,6 @@ interface Quote {
 interface QuoteCardProps {
   quote: Quote;
   showLink?: boolean;
-}
-
-function formatPolishDate(dateString: string): string {
-  const date = new Date(dateString);
-  const months = [
-    'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
-    'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'
-  ];
-  
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  
-  return `${day} ${month} ${year} ${hours}:${minutes}`;
 }
 
 // Format quote content with proper IRC nickname display
@@ -95,7 +81,14 @@ export default function QuoteCard({ quote, showLink = true }: QuoteCardProps) {
         {/* Quote ID */}
         <span className="qid">
           {showLink ? (
-            <a href={`/${quote.id}/`}>#{quote.id}</a>
+            <a 
+              href={`/${quote.id}/`}
+              onClick={(e) => {
+                trackQuoteView(quote.id);
+              }}
+            >
+              #{quote.id}
+            </a>
           ) : (
             <span style={{ fontWeight: 'bold' }}>#{quote.id}</span>
           )}
@@ -108,8 +101,10 @@ export default function QuoteCard({ quote, showLink = true }: QuoteCardProps) {
           initialDownvotes={quote.downvotes}
         />
         
-        {/* Date - floated right */}
-        <span className="date">{formatPolishDate(quote.date)}</span>
+        {/* Date - floated right with semantic time element */}
+        <time className="date" dateTime={getISODateTime(quote.date)}>
+          {formatPolishDate(quote.date)}
+        </time>
       </div>
       
       {/* Quote content */}

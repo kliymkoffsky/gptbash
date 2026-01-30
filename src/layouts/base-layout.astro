@@ -3,12 +3,32 @@ import '../styles/global.css';
 import Header from '../components/header.astro';
 import Nav from '../components/nav.astro';
 import Footer from '../components/footer.astro';
+import SeoHead from '../components/seo-head.astro';
+import StructuredData from '../components/structured-data.astro';
 
 interface Props {
   title: string;
+  description?: string;
+  canonical?: string;
+  type?: 'website' | 'article';
+  image?: string;
+  publishedTime?: string;
+  includeWebsiteSchema?: boolean;
 }
 
-const { title } = Astro.props;
+const { 
+  title, 
+  description, 
+  canonical, 
+  type, 
+  image, 
+  publishedTime,
+  includeWebsiteSchema = true 
+} = Astro.props;
+
+const currentUrl = canonical || new URL(Astro.url.pathname, Astro.site || 'https://gptbash.com').href;
+const defaultDescription = 'Śmieszne cytaty z IRC - gptbash.com';
+const pageDescription = description || defaultDescription;
 ---
 
 <!doctype html>
@@ -16,23 +36,48 @@ const { title } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate" type="application/rss+xml" href="/rss.xml" title="gptbash.com RSS" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    
+    <SeoHead 
+      title={title}
+      description={pageDescription}
+      canonical={currentUrl}
+      type={type}
+      image={image}
+      publishedTime={publishedTime}
+    />
+    
+    {includeWebsiteSchema && (
+      <StructuredData 
+        schema={{
+          type: 'WebSite',
+          name: 'gptbash.com',
+          url: 'https://gptbash.com/',
+          description: 'Śmieszne cytaty z IRC - największa baza polskich cytatów z rozmów IRC'
+        }}
+      />
+    )}
+    
+    <slot name="structured-data" />
   </head>
   <body>
+    <a href="#content" class="skip-link">Przejdź do treści</a>
+    
     <Header />
 
     <!-- Main wrapper with white background -->
-    <div id="main">
+    <main id="main">
       <Nav />
 
       <!-- Content -->
       <div id="content">
         <slot />
       </div>
-    </div>
+    </main>
 
     <Footer />
   </body>

@@ -32,7 +32,11 @@ const startIndex = (currentPage - 1) * QUOTES_PER_PAGE;
 const latestQuotes = allQuotes.slice(startIndex, startIndex + QUOTES_PER_PAGE);
 ---
 
-<BaseLayout title={`gptbash.com: najnowsze - strona ${currentPage}`}>
+<BaseLayout 
+  title={`gptbash.com: najnowsze - strona ${currentPage}`}
+  description={`Najnowsze śmieszne cytaty z IRC - strona ${currentPage}. Przeglądaj świeżo dodane rozmowy.`}
+  canonical={`https://gptbash.com/latest/${currentPage}/`}
+>
   <QuoteList 
     quotes={latestQuotes} 
     currentPage={currentPage}

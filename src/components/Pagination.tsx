@@ -1,4 +1,5 @@
 import './pagination.css';
+import { trackPagination } from '../utils/analytics';
 
 interface PaginationProps {
   currentPage: number;
@@ -8,6 +9,14 @@ interface PaginationProps {
 
 export default function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps) {
   if (totalPages <= 1) return null;
+  
+  // Determine section from baseUrl
+  const section = baseUrl.includes('/top') ? 'top' : 'latest';
+  
+  // Handle pagination click tracking
+  const handlePageClick = (page: number) => {
+    trackPagination(page, section);
+  };
   
   // Generate URL for a page number
   const getPageUrl = (page: number): string => {
@@ -52,32 +61,49 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
   const pageNumbers = getPageNumbers();
   
   return (
-    <div className="pagination">
+    <nav className="pagination" aria-label="Nawigacja stron">
       {/* Previous */}
       {currentPage > 1 ? (
-        <a href={getPageUrl(currentPage - 1)} className="prev">«</a>
+        <a 
+          href={getPageUrl(currentPage - 1)} 
+          className="prev" 
+          aria-label="Poprzednia strona"
+          onClick={(e) => {
+            handlePageClick(currentPage - 1);
+          }}
+        >
+          «
+        </a>
       ) : (
-        <span className="prev disabled">«</span>
+        <span className="prev disabled" aria-hidden="true">«</span>
       )}
       
       {/* Page numbers */}
       {pageNumbers.map((page, index) => {
         if (page === '...') {
-          return <span key={`ellipsis-${index}`} style={{ margin: '0 4px' }}>...</span>;
+          return <span key={`ellipsis-${index}`} style={{ margin: '0 4px' }} aria-hidden="true">...</span>;
         }
         
         const pageNum = page as number;
         
         if (pageNum === currentPage) {
           return (
-            <span key={pageNum} className="page current">
+            <span key={pageNum} className="page current" aria-current="page">
               {pageNum}
             </span>
           );
         }
         
         return (
-          <a key={pageNum} href={getPageUrl(pageNum)} className="page">
+          <a 
+            key={pageNum} 
+            href={getPageUrl(pageNum)} 
+            className="page" 
+            aria-label={`Strona ${pageNum}`}
+            onClick={(e) => {
+              handlePageClick(pageNum);
+            }}
+          >
             {pageNum}
           </a>
         );
@@ -85,10 +111,19 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
       
       {/* Next */}
       {currentPage < totalPages ? (
-        <a href={getPageUrl(currentPage + 1)} className="next">»</a>
+        <a 
+          href={getPageUrl(currentPage + 1)} 
+          className="next" 
+          aria-label="Następna strona"
+          onClick={(e) => {
+            handlePageClick(currentPage + 1);
+          }}
+        >
+          »
+        </a>
       ) : (
-        <span className="next disabled">»</span>
+        <span className="next disabled" aria-hidden="true">»</span>
       )}
-    </div>
+    </nav>
   );
 }

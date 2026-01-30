@@ -6,9 +6,13 @@
   clear: both;
   margin: 0;
   background: #565d5f;
-  color: #ccc;
+  color: #e0e0e0; /* Improved contrast from #ccc to meet WCAG AA */
 }
 
 #foot a {
-  color: #ccc;
+  color: #e0e0e0; /* Improved contrast to meet WCAG AA */
+}
+
+#foot a:hover {
+  color: #fff;
 }

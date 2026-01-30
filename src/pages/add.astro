@@ -2,14 +2,29 @@
 import BaseLayout from '../layouts/base-layout.astro';
 ---
 
-<BaseLayout title="gptbash.com: dodaj cytat">
+<BaseLayout 
+  title="gptbash.com: dodaj cytat"
+  description="Dodaj nowy cytat IRC do bazy gptbash.com. Wprowadź rozmowę w formacie <nick> wiadomość."
+>
   <div class="add">
-    <form id="addForm">
+    <form id="addForm" aria-labelledby="form-title">
+      <h2 id="form-title" style="margin: 10px 0 15px 0;">Dodaj nowy cytat</h2>
+      
+      <label for="quote" class="sr-only">Treść cytatu</label>
       <textarea 
         id="quote" 
         name="quote" 
         rows="12"
+        aria-required="true"
+        aria-describedby="quote-instructions"
+        placeholder="<nick> wiadomość"
       ></textarea>
+      
+      <p id="quote-instructions" style="font-size: 12px; color: #666; margin: 5px 0;">
+        Format: &lt;nick&gt; wiadomość (każda linia to nowa wiadomość)
+      </p>
+      
+      <div id="error-message" role="alert" aria-live="assertive" style="display: none; color: #b33; margin: 10px 0;"></div>
       
       <div class="checkbox-row">
         <input type="checkbox" id="adult" name="adult" value="1" /><br />
@@ -19,7 +34,7 @@ import BaseLayout from '../layouts/base-layout.astro';
       <input type="submit" value="dodaj cytat" class="submit-btn" />
     </form>
 
-    <div id="result">
+    <div id="result" role="status" aria-live="polite">
       <p>Skopiuj i uruchom komendę w terminalu:</p>
       <pre id="command"></pre>
       <button id="copyBtn" class="submit-btn" style="margin-top: 10px; width: auto; padding: 5px 15px;">
@@ -31,14 +46,28 @@ import BaseLayout from '../layouts/base-layout.astro';
 
 <script type="module">
   import { quoteInputToParsedSchema } from '../types/quote-format';
+  import { trackQuoteSubmit, trackCommandCopy } from '../utils/analytics';
 
   const form = document.getElementById('addForm');
   const result = document.getElementById('result');
   const command = document.getElementById('command');
   const copyBtn = document.getElementById('copyBtn');
+  const errorMessage = document.getElementById('error-message');
+  const quoteTextarea = document.getElementById('quote');
   
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
+    
+    // Clear previous error
+    if (errorMessage) {
+      errorMessage.style.display = 'none';
+      errorMessage.textContent = '';
+    }
+    
+    if (quoteTextarea instanceof HTMLTextAreaElement) {
+      quoteTextarea.removeAttribute('aria-invalid');
+    }
+    
     const textareaEl = document.getElementById('quote');
     if (!(textareaEl instanceof HTMLTextAreaElement)) return;
 
@@ -51,14 +80,25 @@ import BaseLayout from '../layouts/base-layout.astro';
     const quote = textareaEl.value.trim();
     
     if (!quote) {
-      alert('Wprowadź treść cytatu');
+      if (errorMessage) {
+        errorMessage.textContent = 'Wprowadź treść cytatu';
+        errorMessage.style.display = 'block';
+      }
+      textareaEl.setAttribute('aria-invalid', 'true');
+      textareaEl.focus();
       return;
     }
 
     const parsed = quoteInputToParsedSchema.safeParse({ content: quote, adult });
     if (!parsed.success) {
       // Zod errors are usually more specific than generic alerts
-      alert(parsed.error.issues[0]?.message ?? 'Nieprawidłowy format cytatu');
+      const errorMsg = parsed.error.issues[0]?.message ?? 'Nieprawidłowy format cytatu';
+      if (errorMessage) {
+        errorMessage.textContent = errorMsg;
+        errorMessage.style.display = 'block';
+      }
+      textareaEl.setAttribute('aria-invalid', 'true');
+      textareaEl.focus();
       return;
     }
     
@@ -71,6 +111,9 @@ import BaseLayout from '../layouts/base-layout.astro';
     
     const cmd = `npm run add-quote "${escaped}"`;
     
+    // Track successful form submission
+    trackQuoteSubmit(adult);
+    
     if (command && result) {
       command.textContent = cmd;
       result.style.display = 'block';
@@ -82,6 +125,9 @@ import BaseLayout from '../layouts/base-layout.astro';
     const cmd = command?.textContent;
     if (cmd) {
       navigator.clipboard.writeText(cmd).then(() => {
+        // Track copy action
+        trackCommandCopy();
+        
         if (copyBtn) {
           copyBtn.textContent = 'Skopiowano!';
           setTimeout(() => {
@@ -174,5 +220,17 @@ import BaseLayout from '../layouts/base-layout.astro';
     font-size: 12px;
     font-family: "Lucida Console", monospace;
     margin: 0;
+  }
+  
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 </style>

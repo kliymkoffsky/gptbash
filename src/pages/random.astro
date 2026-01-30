@@ -8,7 +8,11 @@ const randomIndex = Math.floor(Math.random() * quotesData.quotes.length);
 const randomQuote = quotesData.quotes[randomIndex];
 ---
 
-<BaseLayout title={`gptbash.com: cytat #${randomQuote.id}`}>
+<BaseLayout 
+  title={`gptbash.com: cytat #${randomQuote.id}`}
+  description="Losowy śmieszny cytat z IRC. Odkryj coś nowego za każdym razem!"
+  canonical="https://gptbash.com/random/"
+>
   <QuoteCard quote={randomQuote} client:load />
   
   <p style="margin: 10px 17px; font-size: 12px; color: #888;">

@@ -1,14 +1,15 @@
 ---
 import './footer.css';
 import quotesData from '../data/quotes.json';
+import { formatNumber } from '../utils/formatters';
 
 // Calculate real stats from the data
 const totalQuotes = quotesData.quotes.length;
 const totalRejected = quotesData.meta.totalRejected;
 ---
 
-<div id="foot">
-  <strong>{totalQuotes.toLocaleString('pl-PL')}</strong> zaakceptowanych cytatów, 
-  <strong>{totalRejected.toLocaleString('pl-PL')}</strong> odpadło, 
+<footer id="foot">
+  <strong>{formatNumber(totalQuotes)}</strong> zaakceptowanych cytatów, 
+  <strong>{formatNumber(totalRejected)}</strong> odpadło, 
   <a href="/privacy/">polityka prywatności</a>
-</div>
+</footer>

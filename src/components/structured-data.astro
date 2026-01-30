@@ -1,0 +1,96 @@
+---
+/**
+ * JSON-LD Structured Data Component
+ * Provides schema.org markup for better search engine understanding
+ */
+
+interface WebSiteSchema {
+  type: 'WebSite';
+  name: string;
+  url: string;
+  description: string;
+}
+
+interface ArticleSchema {
+  type: 'Article';
+  headline: string;
+  description: string;
+  datePublished: string;
+  url: string;
+  author?: {
+    type: 'Organization';
+    name: string;
+  };
+}
+
+interface OrganizationSchema {
+  type: 'Organization';
+  name: string;
+  url: string;
+  logo?: string;
+}
+
+type SchemaType = WebSiteSchema | ArticleSchema | OrganizationSchema;
+
+interface Props {
+  schema: SchemaType | SchemaType[];
+}
+
+const { schema } = Astro.props;
+
+function createJsonLd(data: SchemaType): any {
+  if (data.type === 'WebSite') {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: data.name,
+      url: data.url,
+      description: data.description,
+      inLanguage: 'pl',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${data.url}latest/?q={search_term_string}`
+        },
+        'query-input': 'required name=search_term_string'
+      }
+    };
+  }
+  
+  if (data.type === 'Article') {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: data.headline,
+      description: data.description,
+      datePublished: data.datePublished,
+      url: data.url,
+      inLanguage: 'pl',
+      author: data.author || {
+        '@type': 'Organization',
+        name: 'gptbash.com'
+      }
+    };
+  }
+  
+  if (data.type === 'Organization') {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: data.name,
+      url: data.url,
+      logo: data.logo
+    };
+  }
+  
+  return {};
+}
+
+const schemas = Array.isArray(schema) ? schema : [schema];
+const jsonLdData = schemas.map(createJsonLd);
+---
+
+{jsonLdData.map((data) => (
+  <script type="application/ld+json" set:html={JSON.stringify(data)} />
+))}
