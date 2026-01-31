@@ -69,7 +69,7 @@ function formatContent(content: string): JSX.Element[] {
     return (
       <span key={`line-${lineIndex}`}>
         {parts}
-        {lineIndex < lines.length - 1 && '\n'}
+        {lineIndex < lines.length - 1 && <br />}
       </span>
     );
   });
