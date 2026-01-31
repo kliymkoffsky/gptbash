@@ -8,6 +8,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "add-quote": "tsx scripts/add-quote.ts",
+    "lint": "oxlint src scripts --import-plugin --promise-plugin --jsx-a11y-plugin",
+    "lint:fix": "oxlint src scripts --import-plugin --promise-plugin --jsx-a11y-plugin --fix",
     "lighthouse": "lighthouse http://localhost:4321 --view --preset=desktop",
     "lighthouse:mobile": "lighthouse http://localhost:4321 --view --preset=mobile",
     "lighthouse:full": "lighthouse http://localhost:4321 --output=html --output-path=./lighthouse-report.html --preset=desktop",
@@ -33,6 +35,7 @@
   "devDependencies": {
     "@types/uuid": "^10.0.0",
     "lighthouse": "^13.0.1",
+    "oxlint": "^1.42.0",
     "tsx": "^4.21.0"
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import QuoteCard from '../quote-card/quote-card';
 import Pagination from '../../ui/pagination/pagination';
+import { LoaderStatus } from '../../ui/loader-status/loader-status';
 
 interface Quote {
   uuid: string;
@@ -46,7 +47,6 @@ export default function QuoteList({
   const getJsonUrl = useMemo(() => {
     return (page: number) => {
       if (!baseUrl) return null;
-      if (page <= 1) return `${baseUrl}.json`;
       return `${baseUrl}/${page}.json`;
     };
   }, [baseUrl]);
@@ -122,23 +122,12 @@ export default function QuoteList({
 
       {enableInfiniteScroll && (
         <div style={{ margin: '10px 16px', color: '#666', fontSize: '12px' }}>
-          {loading && <span></span>}
-          {!loading && nextPage === null && <span></span>}
-          {!loading && loadError && (
-            <span>
-              Loading error: {loadError}{' '}
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  // Nudge observer by forcing a state update
-                  setLoadError(null);
-                }}
-              >
-                try again
-              </a>
-            </span>
-          )}
+          <LoaderStatus
+            loading={loading}
+            hasMore={nextPage !== null}
+            error={loadError}
+            onRetry={() => setLoadError(null)}
+          />
           {/* Sentinel for IntersectionObserver */}
           <div ref={sentinelRef} style={{ height: 1 }} />
         </div>

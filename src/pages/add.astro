@@ -59,6 +59,21 @@ import site from '../data/site.json';
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
     
+    const textareaEl = document.getElementById('quote');
+    if (!(textareaEl instanceof HTMLTextAreaElement)) return;
+
+    const adultEl = document.getElementById('adult');
+    const submitBtn = form.querySelector('input[type="submit"]');
+    
+    // Disable form elements during submission
+    const setFormDisabled = (disabled) => {
+      textareaEl.disabled = disabled;
+      if (adultEl instanceof HTMLInputElement) adultEl.disabled = disabled;
+      if (submitBtn instanceof HTMLInputElement) submitBtn.disabled = disabled;
+    };
+    
+    setFormDisabled(true);
+    
     // Clear previous error
     if (errorMessage) {
       errorMessage.style.display = 'none';
@@ -68,11 +83,7 @@ import site from '../data/site.json';
     if (quoteTextarea instanceof HTMLTextAreaElement) {
       quoteTextarea.removeAttribute('aria-invalid');
     }
-    
-    const textareaEl = document.getElementById('quote');
-    if (!(textareaEl instanceof HTMLTextAreaElement)) return;
 
-    const adultEl = document.getElementById('adult');
     const adult =
       adultEl instanceof HTMLInputElement && adultEl.type === 'checkbox'
         ? adultEl.checked
@@ -86,6 +97,7 @@ import site from '../data/site.json';
         errorMessage.style.display = 'block';
       }
       textareaEl.setAttribute('aria-invalid', 'true');
+      setFormDisabled(false);
       textareaEl.focus();
       return;
     }
@@ -99,6 +111,7 @@ import site from '../data/site.json';
         errorMessage.style.display = 'block';
       }
       textareaEl.setAttribute('aria-invalid', 'true');
+      setFormDisabled(false);
       textareaEl.focus();
       return;
     }
@@ -120,6 +133,8 @@ import site from '../data/site.json';
       result.style.display = 'block';
       result.scrollIntoView({ behavior: 'smooth' });
     }
+    
+    // Keep form disabled after successful submission
   });
   
   copyBtn?.addEventListener('click', () => {
@@ -198,9 +213,21 @@ import site from '../data/site.json';
     transform: translateZ(0);
   }
   
-  .submit-btn:hover {
+  .submit-btn:hover:not(:disabled) {
     opacity: 0.9;
     will-change: opacity;
+  }
+  
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .add textarea:disabled,
+  .add input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #eee;
   }
   
   #result {

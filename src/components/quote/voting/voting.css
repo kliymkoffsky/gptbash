@@ -60,3 +60,10 @@
   min-width: 2ch;
   display: inline-block;
 }
+
+/* New quote indicator */
+.new-badge {
+  color: #000;
+  font-weight: bold;
+  margin-right: 6px;
+}

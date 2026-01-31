@@ -68,7 +68,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
           href={getPageUrl(currentPage - 1)} 
           className="prev" 
           aria-label="Previous page"
-          onClick={(e) => {
+          onClick={() => {
             handlePageClick(currentPage - 1);
           }}
         >
@@ -100,7 +100,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
             href={getPageUrl(pageNum)} 
             className="page" 
             aria-label={`Page ${pageNum}`}
-            onClick={(e) => {
+            onClick={() => {
               handlePageClick(pageNum);
             }}
           >
@@ -115,7 +115,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
           href={getPageUrl(currentPage + 1)} 
           className="next" 
           aria-label="Next page"
-          onClick={(e) => {
+          onClick={() => {
             handlePageClick(currentPage + 1);
           }}
         >

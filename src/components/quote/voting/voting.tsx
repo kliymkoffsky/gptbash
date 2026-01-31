@@ -11,6 +11,8 @@ interface VotingProps {
 
 type VoteType = 'up' | 'down' | null;
 
+const SEEN_QUOTES_KEY = 'seen-quotes';
+
 function getStorageKey(quoteId: number): string {
   return `vote-${quoteId}`;
 }
@@ -32,15 +34,50 @@ function storeVote(quoteId: number, vote: VoteType): void {
   }
 }
 
+function getSeenQuotes(): Set<number> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const stored = localStorage.getItem(SEEN_QUOTES_KEY);
+    if (stored) {
+      return new Set(JSON.parse(stored));
+    }
+  } catch {
+    // Invalid JSON, reset
+  }
+  return new Set();
+}
+
+function markQuoteAsSeen(quoteId: number): void {
+  if (typeof window === 'undefined') return;
+  const seen = getSeenQuotes();
+  seen.add(quoteId);
+  localStorage.setItem(SEEN_QUOTES_KEY, JSON.stringify([...seen]));
+}
+
+function isQuoteSeen(quoteId: number): boolean {
+  return getSeenQuotes().has(quoteId);
+}
+
 export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: VotingProps) {
   const [userVote, setUserVote] = useState<VoteType>(null);
   const [mounted, setMounted] = useState(false);
+  const [isNew, setIsNew] = useState(false);
 
-  // Load stored vote on mount
+  // Load stored vote and check if new on mount
   useEffect(() => {
     setMounted(true);
     const stored = getStoredVote(quoteId);
     setUserVote(stored);
+    
+    // Check if this quote is new (not seen before)
+    if (!isQuoteSeen(quoteId)) {
+      setIsNew(true);
+      // Mark as seen after a short delay so the badge is visible
+      const timer = setTimeout(() => {
+        markQuoteAsSeen(quoteId);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
   }, [quoteId]);
 
   // Calculate score with user's vote adjustment
@@ -78,6 +115,9 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
   // During SSR/before hydration, buttons are non-interactive but structurally identical
   return (
     <>
+      {mounted && isNew && (
+        <span className="new-badge" aria-label="New quote">New</span>
+      )}
       <span className={`votes ${userVote === 'up' ? 'voted' : ''}`}>
         <button
           type="button"

@@ -1,6 +1,7 @@
 ---
 import QuoteCardAstro from '../quote-card/quote-card.astro';
 import Pagination from '../../ui/pagination/pagination';
+import { LOADER_TEXT } from '../../ui/loader-status/loader-status';
 
 interface Quote {
   uuid: string;
@@ -51,9 +52,12 @@ const {
       data-base-url={baseUrl}
       data-current-page={currentPage}
       data-total-pages={totalPages}
+      data-text-loading={LOADER_TEXT.loading}
+      data-text-end={LOADER_TEXT.endOfList}
+      data-text-retry={LOADER_TEXT.retry}
       style="margin: 10px 16px; color: #666; font-size: 12px;"
     >
-      <span>Loading…</span>
+      <span>{LOADER_TEXT.loading}</span>
       <div data-sentinel style="height: 1px;"></div>
     </div>
   )}
@@ -81,13 +85,27 @@ const {
       const totalPages = parseInt(loader.dataset.totalPages || '1', 10);
       const baseUrl = loader.dataset.baseUrl || '';
       
+      // Text constants from data attributes (sourced from shared LOADER_TEXT)
+      const TEXT = {
+        loading: loader.dataset.textLoading || 'Loading…',
+        end: loader.dataset.textEnd || "That's all.",
+        retry: loader.dataset.textRetry || 'try again',
+      };
+      
+      const html = {
+        loading: () => `<span>${TEXT.loading}</span>`,
+        loadingWithSentinel: () => `<span>${TEXT.loading}</span><div data-sentinel style="height: 1px;"></div>`,
+        end: () => `<span>${TEXT.end}</span>`,
+        error: (msg: string) => `<span>Loading error: ${msg} <a href="#" data-retry>${TEXT.retry}</a></span>`,
+      };
+      
       const observer = new IntersectionObserver(
         (entries) => {
           const entry = entries[0];
           if (!entry?.isIntersecting) return;
           if (loading) return;
           if (nextPage > totalPages) {
-            loader.innerHTML = "<span>That's all.</span>";
+            loader.innerHTML = html.end();
             observer.disconnect();
             return;
           }
@@ -95,7 +113,7 @@ const {
           const url = nextPage <= 1 ? `${baseUrl}.json` : `${baseUrl}/${nextPage}.json`;
           
           loading = true;
-          loader.innerHTML = '<span>Loading…</span>';
+          loader.innerHTML = html.loading();
 
           fetch(url)
             .then(async (res) => {
@@ -116,10 +134,10 @@ const {
               loading = false;
               
               if (nextPage > totalPages) {
-                loader.innerHTML = "<span>That's all.</span>";
+                loader.innerHTML = html.end();
                 observer.disconnect();
               } else {
-                loader.innerHTML = '<span>Loading…</span><div data-sentinel style="height: 1px;"></div>';
+                loader.innerHTML = html.loadingWithSentinel();
                 const newSentinel = loader.querySelector('[data-sentinel]') as HTMLElement;
                 if (newSentinel) {
                   observer.observe(newSentinel);
@@ -128,12 +146,12 @@ const {
             })
             .catch((err) => {
               loading = false;
-              loader.innerHTML = `<span>Loading error: ${err.message} <a href="#" data-retry>try again</a></span>`;
+              loader.innerHTML = html.error(err.message);
               const retryBtn = loader.querySelector('[data-retry]');
               if (retryBtn) {
                 retryBtn.addEventListener('click', (e) => {
                   e.preventDefault();
-                  loader.innerHTML = '<span>Loading…</span><div data-sentinel style="height: 1px;"></div>';
+                  loader.innerHTML = html.loadingWithSentinel();
                   const newSentinel = loader.querySelector('[data-sentinel]') as HTMLElement;
                   if (newSentinel) observer.observe(newSentinel);
                 });

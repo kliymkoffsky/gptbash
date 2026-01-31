@@ -3,15 +3,6 @@ import quotesData from '../data/quotes.json';
 import site from '../data/site.json';
 import { formatRFC822Date } from '../utils/formatters';
 
-function escapeXml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
-
 export const GET: APIRoute = () => {
   // Sort quotes by date (newest first) and take top 20
   const latestQuotes = [...quotesData.quotes]
