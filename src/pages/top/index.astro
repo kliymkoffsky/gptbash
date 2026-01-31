@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/base-layout.astro';
-import QuoteList from '../../components/quote-list.astro';
+import QuoteList from '../../components/quote/quote-list/quote-list.astro';
 import quotesData from '../../data/quotes.json';
+import site from '../../data/site.json';
 
 const QUOTES_PER_PAGE = 20;
 
@@ -17,9 +18,9 @@ const topQuotes = allQuotes.slice(0, QUOTES_PER_PAGE);
 ---
 
 <BaseLayout 
-  title="gptbash.com: top"
+  title={`${site.name}: top`}
   description="Top funny IRC quotes — highest-rated conversations. See the most popular quotes!"
-  canonical="https://gptbash.com/top/"
+  canonical={`${site.baseUrl}/top/`}
 >
   <QuoteList 
     quotes={topQuotes} 

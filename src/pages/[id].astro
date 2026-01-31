@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '../layouts/base-layout.astro';
-import QuoteCard from '../components/quote-card';
-import StructuredData from '../components/structured-data.astro';
+import QuoteCard from '../components/quote/quote-card/quote-card';
+import StructuredData from '../components/seo/structured-data.astro';
 import quotesData from '../data/quotes.json';
+import site from '../data/site.json';
 
 export function getStaticPaths() {
   return quotesData.quotes.map((quote) => ({
@@ -29,12 +30,12 @@ const descriptionText = quote.content.length > 150
   ? quote.content.substring(0, 150) + '...' 
   : quote.content;
 
-const pageUrl = `https://gptbash.com/${quote.id}/`;
-const ogImageUrl = `https://gptbash.com/og-image/${quote.id}.webp`;
+const pageUrl = `${site.baseUrl}/${quote.id}/`;
+const ogImageUrl = `${site.baseUrl}/og-image/${quote.id}.webp`;
 ---
 
 <BaseLayout 
-  title={`gptbash.com: quote #${quote.id}`}
+  title={`${site.name}: quote #${quote.id}`}
   description={descriptionText}
   canonical={pageUrl}
   type="article"
@@ -54,11 +55,6 @@ const ogImageUrl = `https://gptbash.com/og-image/${quote.id}.webp`;
   />
   
   <QuoteCard quote={quote} showLink={false} client:load />
-  
-  <p style="margin: 10px 17px; font-size: 12px;">
-    <a href="/latest/">« latest</a> | 
-    <a href="/top/">« top</a>
-  </p>
 </BaseLayout>
 
 <script define:vars={{ quoteId: quote.id }}>

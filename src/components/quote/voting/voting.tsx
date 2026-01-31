@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import './voting.css';
-import { formatNumber } from '../utils/formatters';
-import { trackVote } from '../utils/analytics';
+import { formatNumber } from '../../../utils/formatters';
+import { trackVote } from '../../../utils/analytics';
 
 interface VotingProps {
   quoteId: number;

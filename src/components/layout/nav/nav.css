@@ -3,6 +3,7 @@
   text-align: right;
   padding: 8px 10px;
   color: #444;
+  background-color: #fff;
   /* Prevent layout shifts */
   contain: layout style;
   transform: translateZ(0);

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import QuoteCard from './quote-card';
-import Pagination from './pagination';
+import QuoteCard from '../quote-card/quote-card';
+import Pagination from '../../ui/pagination/pagination';
 
 interface Quote {
   uuid: string;

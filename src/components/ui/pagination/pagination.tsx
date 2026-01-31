@@ -1,5 +1,5 @@
 import './pagination.css';
-import { trackPagination } from '../utils/analytics';
+import { trackPagination } from '../../../utils/analytics';
 
 interface PaginationProps {
   currentPage: number;

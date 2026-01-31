@@ -1,10 +1,11 @@
 import type { APIRoute } from 'astro';
 import quotesData from '../data/quotes.json';
+import site from '../data/site.json';
 
 const QUOTES_PER_PAGE = 20;
 
 export const GET: APIRoute = () => {
-  const baseUrl = 'https://gptbash.com';
+  const baseUrl = site.baseUrl;
   
   // Static pages
   const staticPages = [

@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/base-layout.astro';
+import site from '../data/site.json';
 ---
 
 <BaseLayout 
-  title="gptbash.com: privacy policy"
-  description="Privacy policy for gptbash.com — information about data processing, cookies, and server logs."
-  canonical="https://gptbash.com/privacy/"
+  title={`${site.name}: privacy policy`}
+  description={`Privacy policy for ${site.name} — information about data processing, cookies, and server logs.`}
+  canonical={`${site.baseUrl}/privacy/`}
 >
   <div class="info-content">
     <h2>Privacy policy</h2>

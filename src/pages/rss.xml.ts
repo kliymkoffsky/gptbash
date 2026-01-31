@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import quotesData from '../data/quotes.json';
+import site from '../data/site.json';
 import { formatRFC822Date } from '../utils/formatters';
 
 function escapeXml(text: string): string {
@@ -20,8 +21,8 @@ export const GET: APIRoute = () => {
   const items = latestQuotes.map(quote => `
     <item>
       <title>#${quote.id}</title>
-      <link>https://gptbash.com/${quote.id}/</link>
-      <guid>https://gptbash.com/${quote.id}/</guid>
+      <link>${site.baseUrl}/${quote.id}/</link>
+      <guid>${site.baseUrl}/${quote.id}/</guid>
       <pubDate>${formatRFC822Date(quote.date)}</pubDate>
       <description><![CDATA[${quote.content}]]></description>
     </item>`).join('');
@@ -29,12 +30,12 @@ export const GET: APIRoute = () => {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>gptbash.com</title>
-    <link>https://gptbash.com/</link>
-    <description>Funny IRC quotes</description>
+    <title>${site.name}</title>
+    <link>${site.baseUrl}/</link>
+    <description>${site.tagline}</description>
     <language>en</language>
     <lastBuildDate>${formatRFC822Date(new Date().toISOString())}</lastBuildDate>
-    <atom:link href="https://gptbash.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="${site.baseUrl}/rss.xml" rel="self" type="application/rss+xml"/>
     ${items}
   </channel>
 </rss>`;

@@ -1,7 +1,7 @@
 ---
-import Voting from './voting';
-import { formatPolishDate, getISODateTime } from '../utils/formatters';
-import { normalizeQuoteContentForDisplay } from '../utils/quote-content';
+import Voting from '../voting/voting';
+import { formatPolishDate, getISODateTime } from '../../../utils/formatters';
+import { normalizeQuoteContentForDisplay } from '../../../utils/quote-content';
 
 interface Quote {
   uuid: string;
@@ -136,7 +136,7 @@ const escapedContent = escapeHtml(normalizedContent);
 </style>
 
 <script>
-  import { trackQuoteView } from '../utils/analytics';
+  import { trackQuoteView } from '../../../utils/analytics';
   
   // Track quote views on click
   document.addEventListener('click', (e) => {

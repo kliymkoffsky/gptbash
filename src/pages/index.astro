@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/base-layout.astro';
+import site from '../data/site.json';
 ---
 
 <BaseLayout 
-  title="gptbash.com: funny quotes"
-  description="Funny IRC quotes — the largest collection of Polish IRC conversation quotes. Browse the latest and top quotes, or submit your own!"
-  canonical="https://gptbash.com/"
+  title={`${site.name}: ${site.tagline}`}
+  description={site.description}
+  canonical={`${site.baseUrl}/`}
 >
   <div class="info-content">
 

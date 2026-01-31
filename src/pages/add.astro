@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '../layouts/base-layout.astro';
+import site from '../data/site.json';
 ---
 
 <BaseLayout 
-  title="gptbash.com: submit a quote"
-  description="Submit a new IRC quote to gptbash.com. Enter the conversation in the format <nick> message."
+  title={`${site.name}: submit a quote`}
+  description={`Submit a new IRC quote to ${site.name}. Enter the conversation in the format <nick> message.`}
 >
   <div class="add">
     <form id="addForm" aria-labelledby="form-title">

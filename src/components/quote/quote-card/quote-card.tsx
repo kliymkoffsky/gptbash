@@ -1,8 +1,8 @@
 import './quote-card.css';
-import Voting from './voting';
-import { formatPolishDate, getISODateTime } from '../utils/formatters';
-import { trackQuoteView } from '../utils/analytics';
-import { normalizeQuoteContentForDisplay } from '../utils/quote-content';
+import Voting from '../voting/voting';
+import { formatPolishDate, getISODateTime } from '../../../utils/formatters';
+import { trackQuoteView } from '../../../utils/analytics';
+import { normalizeQuoteContentForDisplay } from '../../../utils/quote-content';
 
 interface Quote {
   uuid: string;

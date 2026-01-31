@@ -1,6 +1,6 @@
 ---
 import './nav.css';
-import quotesData from '../data/quotes.json';
+import quotesData from '../../../data/quotes.json';
 
 // Quote ids are dense from 1..lastId
 const maxId = quotesData.meta.lastId;
@@ -16,7 +16,7 @@ const maxId = quotesData.meta.lastId;
 </nav>
 
 <script>
-  import { trackNavigation, trackRandomQuote } from '../utils/analytics';
+  import { trackNavigation, trackRandomQuote } from '../../../utils/analytics';
 
   class SparseRandomPicker {
     constructor(maxExclusive) {
