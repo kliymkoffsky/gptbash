@@ -200,6 +200,8 @@ const {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+      // Convert newlines to <br> tags for proper line breaks
+      const htmlContent = escapedContent.replace(/\n/g, '<br>');
       
       article.innerHTML = `
         <div class="bar clearfix">
@@ -217,7 +219,7 @@ const {
             ${formatDate(quote.date)}
           </time>
         </div>
-        <div class="quote">${escapedContent}</div>
+        <div class="quote">${htmlContent}</div>
       `;
       return article;
     }

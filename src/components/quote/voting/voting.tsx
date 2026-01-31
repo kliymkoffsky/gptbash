@@ -115,9 +115,7 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
   // During SSR/before hydration, buttons are non-interactive but structurally identical
   return (
     <>
-      {mounted && isNew && (
-        <span className="new-badge" aria-label="New quote">New</span>
-      )}
+
       <span className={`votes ${userVote === 'up' ? 'voted' : ''}`}>
         <button
           type="button"
@@ -151,6 +149,9 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
       <span className="points" aria-live="polite" aria-atomic="true" suppressHydrationWarning>
         {formatNumber(mounted ? score : baseScore)}
       </span>
+      {mounted && isNew && (
+        <span className="new-badge" aria-label="New quote">New</span>
+      )}
     </>
   );
 }

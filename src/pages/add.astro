@@ -19,20 +19,17 @@ import site from '../data/site.json';
         aria-required="true"
         aria-describedby="quote-instructions"
         placeholder="<nick> message"
+        disabled
       ></textarea>
-      
-      <p id="quote-instructions" style="font-size: 12px; color: #666; margin: 5px 0;">
-        Format: &lt;nick&gt; message (each line is a new message)
-      </p>
-      
+
       <div id="error-message" role="alert" aria-live="assertive" style="display: none; color: #b33; margin: 10px 0;"></div>
       
       <div class="checkbox-row">
-        <input type="checkbox" id="adult" name="adult" value="1" /><br />
+        <input type="checkbox" id="adult" name="adult" value="1" disabled /><br />
         <label for="adult">this quote contains adult content</label>
       </div>
       
-      <input type="submit" value="submit quote" class="submit-btn" />
+      <input type="submit" value="submit quote" class="submit-btn" disabled />
     </form>
 
     <div id="result" role="status" aria-live="polite">
@@ -55,20 +52,23 @@ import site from '../data/site.json';
   const copyBtn = document.getElementById('copyBtn');
   const errorMessage = document.getElementById('error-message');
   const quoteTextarea = document.getElementById('quote');
+  const adultCheckbox = document.getElementById('adult');
+  const submitBtn = form?.querySelector('input[type="submit"]');
+  
+  // Enable form elements on load
+  if (quoteTextarea instanceof HTMLTextAreaElement) quoteTextarea.disabled = false;
+  if (adultCheckbox instanceof HTMLInputElement) adultCheckbox.disabled = false;
+  if (submitBtn instanceof HTMLInputElement) submitBtn.disabled = false;
   
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
     
-    const textareaEl = document.getElementById('quote');
-    if (!(textareaEl instanceof HTMLTextAreaElement)) return;
-
-    const adultEl = document.getElementById('adult');
-    const submitBtn = form.querySelector('input[type="submit"]');
+    if (!(quoteTextarea instanceof HTMLTextAreaElement)) return;
     
     // Disable form elements during submission
     const setFormDisabled = (disabled) => {
-      textareaEl.disabled = disabled;
-      if (adultEl instanceof HTMLInputElement) adultEl.disabled = disabled;
+      quoteTextarea.disabled = disabled;
+      if (adultCheckbox instanceof HTMLInputElement) adultCheckbox.disabled = disabled;
       if (submitBtn instanceof HTMLInputElement) submitBtn.disabled = disabled;
     };
     
@@ -85,20 +85,20 @@ import site from '../data/site.json';
     }
 
     const adult =
-      adultEl instanceof HTMLInputElement && adultEl.type === 'checkbox'
-        ? adultEl.checked
+      adultCheckbox instanceof HTMLInputElement && adultCheckbox.type === 'checkbox'
+        ? adultCheckbox.checked
         : false;
 
-    const quote = textareaEl.value.trim();
+    const quote = quoteTextarea.value.trim();
     
     if (!quote) {
       if (errorMessage) {
         errorMessage.textContent = 'Enter quote content';
         errorMessage.style.display = 'block';
       }
-      textareaEl.setAttribute('aria-invalid', 'true');
+      quoteTextarea.setAttribute('aria-invalid', 'true');
       setFormDisabled(false);
-      textareaEl.focus();
+      quoteTextarea.focus();
       return;
     }
 
@@ -110,9 +110,9 @@ import site from '../data/site.json';
         errorMessage.textContent = errorMsg;
         errorMessage.style.display = 'block';
       }
-      textareaEl.setAttribute('aria-invalid', 'true');
+      quoteTextarea.setAttribute('aria-invalid', 'true');
       setFormDisabled(false);
-      textareaEl.focus();
+      quoteTextarea.focus();
       return;
     }
     

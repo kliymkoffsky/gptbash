@@ -31,6 +31,8 @@ function escapeHtml(text: string): string {
 
 const normalizedContent = normalizeQuoteContentForDisplay(quote.content);
 const escapedContent = escapeHtml(normalizedContent);
+// Convert newlines to <br> tags to survive HTML minification
+const htmlContent = escapedContent.replace(/\n/g, '<br>');
 ---
 
 <article>
@@ -65,7 +67,7 @@ const escapedContent = escapeHtml(normalizedContent);
   </div>
   
   {/* Quote content - escaped HTML to prevent <nick> being interpreted as tags */}
-  <div class="quote" set:html={escapedContent}></div>
+  <div class="quote" set:html={htmlContent}></div>
 </article>
 
 <style is:global>
