@@ -86,9 +86,9 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
             handleVote('up');
           } : undefined}
           disabled={!mounted}
-          aria-label={mounted && userVote === 'up' ? 'Cofnij głos za' : 'Głosuj za cytat'}
+          aria-label={mounted && userVote === 'up' ? 'Remove upvote' : 'Upvote quote'}
           aria-pressed={mounted ? userVote === 'up' : undefined}
-          title={mounted && userVote === 'up' ? 'Cofnij głos' : 'Głosuj za'}
+          title={mounted && userVote === 'up' ? 'Undo vote' : 'Upvote'}
         >
           +
         </button>
@@ -101,9 +101,9 @@ export default function Voting({ quoteId, initialUpvotes, initialDownvotes }: Vo
             handleVote('down');
           } : undefined}
           disabled={!mounted}
-          aria-label={mounted && userVote === 'down' ? 'Cofnij głos przeciw' : 'Głosuj przeciw cytatowi'}
+          aria-label={mounted && userVote === 'down' ? 'Remove downvote' : 'Downvote quote'}
           aria-pressed={mounted ? userVote === 'down' : undefined}
-          title={mounted && userVote === 'down' ? 'Cofnij głos' : 'Głosuj przeciw'}
+          title={mounted && userVote === 'down' ? 'Undo vote' : 'Downvote'}
         >
           -
         </button>

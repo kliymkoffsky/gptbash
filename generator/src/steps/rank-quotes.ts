@@ -48,36 +48,65 @@ export const rankQuotesStep = createStep({
 /**
  * Select Personas Step
  *
- * Randomly selects personas for the improv conversation.
+ * Randomly selects 1-3 personas for the improv conversation.
+ * Generates unique situations for each persona.
  */
 export const selectPersonasStep = createStep({
   id: "select-personas",
   inputSchema: z.object({
     topic: z.string(),
-    numPersonas: z.number().min(2).max(5),
-    numRounds: z.number(),
+    numPersonas: z.number().min(1).max(5).optional(),
+    numRounds: z.number().optional(),
   }),
   outputSchema: z.object({
     topic: z.string(),
     selectedPersonas: z.array(z.string()),
+    situations: z.array(z.object({
+      personaId: z.string(),
+      mood: z.string(),
+      context: z.string(),
+      secret: z.string().optional(),
+    })),
     numRounds: z.number(),
   }),
   execute: async ({ inputData }) => {
-    const { topic, numPersonas, numRounds } = inputData;
+    const { topic } = inputData;
 
-    // Import personas list
+    // Import dependencies
     const { PERSONAS } = await import("../types/index.js");
+    const { generateSituation, randomConversationParams } = await import("../data/situations.js");
+
+    // Randomize conversation params if not provided
+    const randomParams = randomConversationParams();
+    const numPersonas = inputData.numPersonas ?? randomParams.numPersonas;
+    const numRounds = inputData.numRounds ?? randomParams.numRounds;
 
     // Shuffle and select personas
     const shuffled = [...PERSONAS].sort(() => Math.random() - 0.5);
     const selected = shuffled.slice(0, numPersonas);
     const selectedIds = selected.map((p) => p.id);
 
+    // Generate unique situation for each persona
+    const situations = selected.map((p) => ({
+      personaId: p.id,
+      ...generateSituation(),
+    }));
+
     log.persona.selected(selected.map((p) => p.nickname));
+    log.info(`Rounds: ${numRounds}`);
+    
+    // Log each persona's situation
+    situations.forEach((sit) => {
+      const persona = selected.find((p) => p.id === sit.personaId);
+      if (persona) {
+        log.persona.situation(persona.nickname, sit.mood, sit.context);
+      }
+    });
 
     return {
       topic,
       selectedPersonas: selectedIds,
+      situations,
       numRounds,
     };
   },

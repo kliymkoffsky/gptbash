@@ -9,7 +9,7 @@ import { Agent } from "@mastra/core/agent";
 export const quoteStylistAgent = new Agent({
   id: "quote-stylist",
   name: "Quote Stylist",
-  model: "anthropic/claude-sonnet-4-20250514",
+  model: "anthropic/claude-haiku-4-5-20251001",
   instructions: `You are a quote stylist that transforms conversations into bash.org.pl style IRC quotes.
 
 Your job is to:

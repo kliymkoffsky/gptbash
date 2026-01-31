@@ -53,7 +53,7 @@ const {
       data-total-pages={totalPages}
       style="margin: 10px 16px; color: #666; font-size: 12px;"
     >
-      <span>Ładowanie…</span>
+      <span>Loading…</span>
       <div data-sentinel style="height: 1px;"></div>
     </div>
   )}
@@ -87,7 +87,7 @@ const {
           if (!entry?.isIntersecting) return;
           if (loading) return;
           if (nextPage > totalPages) {
-            loader.innerHTML = '<span>To już wszystko.</span>';
+            loader.innerHTML = "<span>That's all.</span>";
             observer.disconnect();
             return;
           }
@@ -95,7 +95,7 @@ const {
           const url = nextPage <= 1 ? `${baseUrl}.json` : `${baseUrl}/${nextPage}.json`;
           
           loading = true;
-          loader.innerHTML = '<span>Ładowanie…</span>';
+          loader.innerHTML = '<span>Loading…</span>';
 
           fetch(url)
             .then(async (res) => {
@@ -116,10 +116,10 @@ const {
               loading = false;
               
               if (nextPage > totalPages) {
-                loader.innerHTML = '<span>To już wszystko.</span>';
+                loader.innerHTML = "<span>That's all.</span>";
                 observer.disconnect();
               } else {
-                loader.innerHTML = '<span>Ładowanie…</span><div data-sentinel style="height: 1px;"></div>';
+                loader.innerHTML = '<span>Loading…</span><div data-sentinel style="height: 1px;"></div>';
                 const newSentinel = loader.querySelector('[data-sentinel]') as HTMLElement;
                 if (newSentinel) {
                   observer.observe(newSentinel);
@@ -128,12 +128,12 @@ const {
             })
             .catch((err) => {
               loading = false;
-              loader.innerHTML = `<span>Błąd ładowania: ${err.message} <a href="#" data-retry>spróbuj ponownie</a></span>`;
+              loader.innerHTML = `<span>Loading error: ${err.message} <a href="#" data-retry>try again</a></span>`;
               const retryBtn = loader.querySelector('[data-retry]');
               if (retryBtn) {
                 retryBtn.addEventListener('click', (e) => {
                   e.preventDefault();
-                  loader.innerHTML = '<span>Ładowanie…</span><div data-sentinel style="height: 1px;"></div>';
+                  loader.innerHTML = '<span>Loading…</span><div data-sentinel style="height: 1px;"></div>';
                   const newSentinel = loader.querySelector('[data-sentinel]') as HTMLElement;
                   if (newSentinel) observer.observe(newSentinel);
                 });
@@ -181,8 +181,8 @@ const {
 
     function formatDate(dateStr: string): string {
       const date = new Date(dateStr);
-      const months = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
-      return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
     }
   </script>
 )}

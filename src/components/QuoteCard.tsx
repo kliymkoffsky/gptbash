@@ -1,3 +1,6 @@
+/** @jsxImportSource preact */
+import type { JSX } from 'preact';
+
 interface Quote {
   uuid: string;
   id: number;
@@ -15,8 +18,8 @@ interface QuoteCardProps {
 function formatPolishDate(dateString: string): string {
   const date = new Date(dateString);
   const months = [
-    'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
-    'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ];
   
   const day = date.getDate();
@@ -25,7 +28,7 @@ function formatPolishDate(dateString: string): string {
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
   
-  return `${day} ${month} ${year} ${hours}:${minutes}`;
+  return `${month} ${day}, ${year} ${hours}:${minutes}`;
 }
 
 function getScore(quote: Quote): number {
@@ -106,14 +109,14 @@ export default function QuoteCard({ quote, showLink = true }: QuoteCardProps) {
         
         {/* Vote buttons */}
         <span className="votes">
-          <a href="#" onClick={(e) => e.preventDefault()}>+</a>
+          <a href="#" onClick={(e: MouseEvent) => e.preventDefault()}>+</a>
         </span>
         <span className="votes">
-          <a href="#" onClick={(e) => e.preventDefault()}>-</a>
+          <a href="#" onClick={(e: MouseEvent) => e.preventDefault()}>-</a>
         </span>
         
         {/* Score */}
-        <span className="points">{score.toLocaleString('pl-PL')}</span>
+        <span className="points">{score.toLocaleString('en-US')}</span>
         
         {/* Date - floated right */}
         <span className="date">{formatPolishDate(quote.date)}</span>

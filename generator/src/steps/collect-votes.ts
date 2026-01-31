@@ -44,9 +44,7 @@ export const collectVotesStep = createStep({
       try {
         const prompt = buildJudgingPrompt(judgeConfig, quoteText);
 
-        const result = await agent.generate({
-          messages: [{ role: "user", content: prompt }],
-        });
+        const result = await agent.generate(prompt);
 
         return parseJudgeResponse(judgeConfig, result.text || "");
       } catch (error) {

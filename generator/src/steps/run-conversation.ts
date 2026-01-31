@@ -4,17 +4,27 @@ import { MessageSchema, PERSONAS } from "../types/index.js";
 import { log } from "../utils/logger.js";
 import { hasApiKey } from "../utils/api-check.js";
 
+// Situation schema for input
+const SituationSchema = z.object({
+  personaId: z.string(),
+  mood: z.string(),
+  context: z.string(),
+  secret: z.string().optional(),
+});
+
 /**
  * Run Conversation Step (Improv Mode)
  *
  * Orchestrates a ping-pong conversation between multiple persona agents.
  * Each agent takes turns responding based on the conversation context.
+ * Now with unique situations per persona!
  */
 export const runConversationStep = createStep({
   id: "run-conversation",
   inputSchema: z.object({
     topic: z.string(),
     selectedPersonas: z.array(z.string()),
+    situations: z.array(SituationSchema).optional(),
     numRounds: z.number(),
   }),
   outputSchema: z.object({
@@ -23,11 +33,11 @@ export const runConversationStep = createStep({
     selectedPersonas: z.array(z.string()),
   }),
   execute: async ({ inputData, mastra }) => {
-    const { topic, selectedPersonas, numRounds } = inputData;
+    const { topic, selectedPersonas, situations = [], numRounds } = inputData;
     const messages: { author: string; content: string }[] = [];
 
-    // Build conversation history for context
-    let conversationHistory = `Topic: ${topic}\n\n`;
+    // Build situation lookup
+    const situationMap = new Map(situations.map((s) => [s.personaId, s]));
 
     // Run conversation rounds
     for (let round = 0; round < numRounds; round++) {
@@ -36,6 +46,7 @@ export const runConversationStep = createStep({
         const agent = mastra?.getAgent?.(personaId);
         const persona = PERSONAS.find((p) => p.id === personaId);
         const nickname = persona?.nickname || personaId;
+        const situation = situationMap.get(personaId);
 
         // Skip agent call if no API key - use fallback immediately
         if (!agent || !hasApiKey()) {
@@ -47,19 +58,16 @@ export const runConversationStep = createStep({
         }
 
         try {
-
-          // Generate response with conversation context
+          // Generate response with conversation context and situation
           const prompt = buildConversationPrompt(
             topic,
-            conversationHistory,
             messages,
             round,
-            numRounds
+            numRounds,
+            situation
           );
 
-          const result = await agent.generate({
-            messages: [{ role: "user", content: prompt }],
-          });
+          const result = await agent.generate(prompt);
 
           const responseText = extractResponseText(result.text || "");
 
@@ -67,14 +75,10 @@ export const runConversationStep = createStep({
             author: nickname,
             content: responseText,
           });
-
-          // Update conversation history
-          conversationHistory += `<${nickname}> ${responseText}\n`;
         } catch (error) {
           log.agent.error(personaId, error);
-          const persona = PERSONAS.find((p) => p.id === personaId);
           messages.push({
-            author: persona?.nickname || personaId,
+            author: nickname,
             content: "[Error generating response]",
           });
         }
@@ -90,36 +94,51 @@ export const runConversationStep = createStep({
  */
 function buildConversationPrompt(
   topic: string,
-  history: string,
   messages: { author: string; content: string }[],
   currentRound: number,
-  totalRounds: number
+  totalRounds: number,
+  situation?: { mood: string; context: string; secret?: string }
 ): string {
   const isFirstMessage = messages.length === 0;
   const isLastRound = currentRound === totalRounds - 1;
 
-  let prompt = `You are in an IRC chat. The topic is: "${topic}"\n\n`;
+  let prompt = `Jesteś na polskim IRC. Temat rozmowy: "${topic}"\n\n`;
+
+  // Add unique situation context
+  if (situation) {
+    prompt += `TWOJA SYTUACJA:\n`;
+    prompt += `- Nastrój: ${situation.mood}\n`;
+    prompt += `- Kontekst: ${situation.context}\n`;
+    if (situation.secret) {
+      prompt += `- Twój sekret (możesz subtelnie nawiązywać): ${situation.secret}\n`;
+    }
+    prompt += "\n";
+  }
 
   if (messages.length > 0) {
-    prompt += "Conversation so far:\n";
+    prompt += "Dotychczasowa rozmowa:\n";
     messages.slice(-6).forEach((msg) => {
       prompt += `<${msg.author}> ${msg.content}\n`;
     });
     prompt += "\n";
   }
 
-  prompt += "Respond with a SHORT, witty IRC-style message (1-2 sentences max). ";
-  prompt += "Be funny but natural. Don't be too verbose. ";
+  prompt += "ZASADY:\n";
+  prompt += "- Krótka wiadomość IRC (max 1-2 zdania)\n";
+  prompt += "- Pisz PO POLSKU\n";
+  prompt += "- Bądź zabawny ale naturalny\n";
+  prompt += "- Reaguj na kontekst i sytuację\n";
+  prompt += "- NIE zaczynaj od 'haha' ani 'lol'\n";
 
   if (isFirstMessage) {
-    prompt += "You are starting the conversation. ";
+    prompt += "- Zaczynasz rozmowę - rzuć temat\n";
   }
 
   if (isLastRound) {
-    prompt += "This is near the end of the conversation, try to land a good punchline or callback. ";
+    prompt += "- To koniec rozmowy - spróbuj zakończyć puentą\n";
   }
 
-  prompt += "\nRespond with ONLY your message, no nickname prefix.";
+  prompt += "\nOdpowiedz TYLKO treścią wiadomości, bez nicka.";
 
   return prompt;
 }

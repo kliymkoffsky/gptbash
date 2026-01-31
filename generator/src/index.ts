@@ -2,6 +2,7 @@ import { Mastra } from "@mastra/core/mastra";
 import { quoteGeneratorWorkflow } from "./workflows/quote-generator.js";
 import { improvSessionWorkflow, simpleImprovWorkflow, runBatchImprov } from "./workflows/improv-session.js";
 import { quoteStylistAgent } from "./agents/quote-stylist.js";
+import { creativeAgents } from "./agents/creative-agents.js";
 import { personaAgents } from "./agents/personas/index.js";
 import { judgeAgents } from "./agents/judges/index.js";
 import { getRandomPrompt, getRandomPrompts } from "./data/conversation-prompts.js";
@@ -17,6 +18,7 @@ import { log } from "./utils/logger.js";
 export const mastra = new Mastra({
   agents: {
     "quote-stylist": quoteStylistAgent,
+    ...creativeAgents,
     ...personaAgents,
     ...judgeAgents,
   },
@@ -86,12 +88,10 @@ async function runQuoteGenerator(source: "wykop" | "twitter" | "mock", query?: s
  */
 async function runImprovSession(
   topic: string,
-  numPersonas = 3,
-  numRounds = 5,
+  format?: "micro" | "short" | "medium" | "standard",
   useStorage = true
 ) {
   log.workflow.start("Improv Session", topic);
-  log.info(`Personas: ${numPersonas}, Rounds: ${numRounds}`);
 
   // Choose workflow based on storage availability
   const workflowId = useStorage ? "improv-session" : "simple-improv-session";
@@ -99,32 +99,31 @@ async function runImprovSession(
   const run = await workflow.createRun();
 
   const result = await run.start({
-    inputData: { topic, numPersonas, numRounds },
+    inputData: { topic, format },
   });
 
   if (result.status === "success") {
-    const { quote, votes, totalScore, decision } = result.result;
+    const { quote, votes, totalScore, judgeComments, iterations, format: usedFormat } = result.result;
 
     // Display quote
     log.quote.display(quote);
 
-    // Display votes
-    log.divider();
-    log.judge.voting();
-    votes.forEach((vote: { judgeId: string; criteria: string; score: number; reasoning: string }) => {
-      log.judge.vote(vote.judgeId || vote.criteria, vote.score);
-    });
-    log.judge.total(totalScore, votes.length * 10);
+    // Show final result
+    const avgScore = votes.length > 0 ? totalScore / votes.length : 0;
+    const approved = avgScore >= 7 && totalScore >= 21;
 
-    // Show approval decision if available
-    if (decision) {
-      if (decision.starred) {
-        log.approval.starred(decision.reason);
-      } else if (decision.approved) {
-        log.approval.approved(decision.reason);
-      } else {
-        log.approval.rejected(decision.reason);
-      }
+    log.info(`Format: ${usedFormat?.name || "unknown"} | Iterations: ${iterations || 1}`);
+
+    if (approved) {
+      log.approval.approved(`Score: ${totalScore}, avg: ${avgScore.toFixed(1)}`);
+    } else {
+      log.approval.rejected(`Score: ${totalScore}, avg: ${avgScore.toFixed(1)}`);
+    }
+
+    // Show judge comments if any
+    if (judgeComments && judgeComments.length > 0) {
+      console.log();
+      judgeComments.forEach((c: string) => log.info(`💬 ${c}`));
     }
 
     return result.result;
@@ -141,6 +140,128 @@ async function runBatchImprovMode(count: number) {
   const topics = getRandomPrompts(count);
   const workflow = mastra.getWorkflow("improv-session");
   return runBatchImprov(workflow, topics);
+}
+
+/**
+ * Quick session - one shot, no iterations
+ */
+async function runQuickSession(
+  topic: string,
+  format?: "micro" | "short" | "medium" | "standard"
+) {
+  log.workflow.start("Quick", topic);
+  
+  const { oneShotStep } = await import("./steps/one-shot.js");
+  const { FORMATS, getRandomFormat } = await import("./prompts/formats.js");
+  
+  const selectedFormat = format ? FORMATS[format] : getRandomFormat();
+  
+  // Direct agent call, no workflow overhead
+  const agent = mastra.getAgent("conversation-writer");
+  const { oneShotPrompt } = await import("./prompts/one-shot.js");
+  
+  try {
+    const prompt = oneShotPrompt(topic, selectedFormat);
+    const result = await agent.generate(prompt);
+    const text = result.text || "";
+    
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      let messages = JSON.parse(jsonMatch[0]);
+      messages = messages.slice(0, selectedFormat.messages);
+      
+      const quoteId = Math.random().toString(36).substring(2, 10);
+      const quote = {
+        id: quoteId,
+        lines: messages.map((m: any) => ({ nickname: m.author, text: m.content })),
+      };
+      
+      log.quote.display(quote);
+      log.info(`Format: ${selectedFormat.name}`);
+      log.success("Done");
+    }
+  } catch (e) {
+    log.workflow.error("Failed", e as Error);
+  }
+}
+
+/**
+ * Raw session - simplest possible, text output
+ */
+async function runRawSession(topic: string) {
+  log.workflow.start("Raw", topic);
+  
+  const agent = mastra.getAgent("conversation-writer");
+  const { rawShotPrompt } = await import("./prompts/raw-shot.js");
+  
+  try {
+    const prompt = rawShotPrompt(topic);
+    const result = await agent.generate(prompt);
+    const text = result.text || "";
+    
+    // Parse <nick> message format
+    const lines = text.split("\n").filter((l) => l.trim().startsWith("<"));
+    
+    if (lines.length > 0) {
+      console.log();
+      console.log("━".repeat(50));
+      lines.forEach((line) => {
+        console.log(line.trim());
+      });
+      console.log("━".repeat(50));
+      log.success("Done");
+    } else {
+      // Fallback - just show raw output
+      console.log();
+      console.log(text);
+    }
+  } catch (e) {
+    log.workflow.error("Failed", e as Error);
+  }
+}
+
+/**
+ * Generate topics for a category and run conversations
+ */
+async function runCategoryBatch(
+  category: string,
+  count: number = 3,
+  format?: "micro" | "short" | "medium" | "standard"
+) {
+  log.workflow.start("Category Batch", category);
+  log.info(`Generating ${count} topics...`);
+
+  // Generate topics using LLM
+  const agent = mastra.getAgent("creative-director");
+  let topics: string[] = [];
+
+  try {
+    const { topicsPrompt } = await import("./prompts/index.js");
+    const prompt = topicsPrompt(category, count);
+    const result = await agent.generate(prompt);
+    const text = result.text || "";
+    
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      topics = JSON.parse(jsonMatch[0]);
+    }
+  } catch (_e) {
+    log.warning("Topic generation failed, using fallback");
+    topics = [`${category} problem 1`, `${category} problem 2`, `${category} problem 3`];
+  }
+
+  log.info(`Topics: ${topics.join(", ")}`);
+  console.log();
+
+  // Run each topic
+  for (let i = 0; i < topics.length; i++) {
+    log.divider();
+    log.info(`[${i + 1}/${topics.length}] ${topics[i]}`);
+    await runImprovSession(topics[i], format, false);
+    console.log();
+  }
+
+  log.success(`Completed ${topics.length} conversations`);
 }
 
 /**
@@ -179,11 +300,30 @@ async function main() {
       break;
 
     case "improv":
-      await runImprovSession(topic, 3, 5, storageAvailable);
+      const formatArg = args.find((a) => a.startsWith("--format="))?.split("=")[1] as
+        | "micro" | "short" | "medium" | "standard" | undefined;
+      await runImprovSession(topic, formatArg, storageAvailable);
+      break;
+
+    case "quick":
+      const qFormatArg = args.find((a) => a.startsWith("--format="))?.split("=")[1] as
+        | "micro" | "short" | "medium" | "standard" | undefined;
+      await runQuickSession(topic, qFormatArg);
+      break;
+
+    case "raw":
+      await runRawSession(topic);
       break;
 
     case "improv-batch":
       await runBatchImprovMode(count);
+      break;
+
+    case "category":
+      const categoryArg = args.find((a) => a.startsWith("--category="))?.split("=")[1] || "tech";
+      const catFormatArg = args.find((a) => a.startsWith("--format="))?.split("=")[1] as
+        | "micro" | "short" | "medium" | "standard" | undefined;
+      await runCategoryBatch(categoryArg, count, catFormatArg);
       break;
 
     case "stats":
@@ -196,18 +336,17 @@ Usage:
   npx tsx src/index.ts --mode=<mode> [options]
 
 Modes:
-  --mode=mock           Generate quote from mock data (default)
-  --mode=wykop          Fetch from wykop.pl (stub)
-  --mode=twitter        Fetch from Twitter/X (stub)
-  --mode=improv         Run improv session with AI agents
-  --mode=improv-batch   Run multiple improv sessions and rank
-  --mode=stats          Show storage statistics
+  --mode=raw            Simplest - text output, no JSON
+  --mode=quick          One-shot JSON generation
+  --mode=improv         Full pipeline with iterations
+  --mode=category       Generate topics + batch run
 
 Options:
   --topic="..."         Topic for improv mode
-  --count=N             Number of sessions for improv-batch
-  --query="..."         Search query for wykop/twitter modes
-  --no-storage          Skip Redis storage (no persistence)
+  --category="..."      Category for batch generation (tech, gaming, work, etc)
+  --format=X            Format: micro (2), short (3), medium (4), standard (5)
+  --count=N             Number of conversations (default: 3)
+  --no-storage          Skip Redis storage
 
 Storage CLI:
   npm run storage:stats     Show storage statistics

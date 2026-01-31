@@ -35,14 +35,9 @@ export const transformQuoteStep = createStep({
           .map((m) => `${m.author}: ${m.content}`)
           .join("\n");
 
-        const result = await agent.generate({
-          messages: [
-            {
-              role: "user",
-              content: `Transform this conversation into bash.org.pl IRC-style format. Keep it concise and preserve the humor:\n\n${conversationText}`,
-            },
-          ],
-        });
+        const result = await agent.generate(
+          `Transform this conversation into bash.org.pl IRC-style format. Keep it concise and preserve the humor:\n\n${conversationText}`
+        );
 
         // Parse the agent's response into quote lines
         const responseText = result.text || "";

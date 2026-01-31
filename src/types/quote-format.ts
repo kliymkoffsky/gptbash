@@ -49,7 +49,7 @@ export function parseQuoteContent(content: string): ParsedQuote {
  * `parsed` is a derived/internal representation used by the app.
  */
 export const rawQuoteInputSchema = z.object({
-  content: z.string().trim().min(1, 'Wprowadź treść cytatu'),
+  content: z.string().trim().min(1, 'Enter quote content'),
   adult: z.boolean().optional(),
 });
 

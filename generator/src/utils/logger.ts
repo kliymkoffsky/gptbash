@@ -136,6 +136,9 @@ export const log = {
     speaking: (nickname: string, round: number) => {
       console.log(`${prefixes.persona} ${chalk.green(nickname)} ${chalk.gray(`(round ${round})`)}`);
     },
+    situation: (nickname: string, mood: string, context: string) => {
+      console.log(`${prefixes.persona} ${chalk.cyan(nickname)}: ${chalk.gray(mood)} | ${chalk.gray(context)}`);
+    },
   },
 
   judge: {
@@ -191,15 +194,18 @@ export const log = {
   quote: {
     display: (quote: { id: string; lines: { nickname: string; text: string }[] }) => {
       console.log();
-      console.log(chalk.gray("┌" + "─".repeat(58) + "┐"));
-      console.log(chalk.gray("│") + chalk.white.bold(` #${quote.id}`.padEnd(58)) + chalk.gray("│"));
-      console.log(chalk.gray("├" + "─".repeat(58) + "┤"));
-      quote.lines.forEach((line) => {
+      console.log(chalk.yellow("━".repeat(50)));
+      console.log(chalk.white.bold(` #${quote.id}`));
+      console.log(chalk.yellow("━".repeat(50)));
+      quote.lines.forEach((line, i) => {
         const nick = chalk.cyan(`<${line.nickname}>`);
-        const text = line.text.slice(0, 45);
-        console.log(chalk.gray("│ ") + nick + " " + text.padEnd(45 - line.nickname.length) + chalk.gray(" │"));
+        console.log(`${nick} ${line.text}`);
+        // Add separator between messages for readability
+        if (i < quote.lines.length - 1) {
+          console.log(chalk.gray("·"));
+        }
       });
-      console.log(chalk.gray("└" + "─".repeat(58) + "┘"));
+      console.log(chalk.yellow("━".repeat(50)));
     },
   },
 

@@ -8,7 +8,7 @@ import { Agent } from "@mastra/core/agent";
 export const humorJudgeAgent = new Agent({
   id: "humor-judge",
   name: "Humor Judge",
-  model: "anthropic/claude-sonnet-4-20250514",
+  model: "anthropic/claude-haiku-4-5-20251001",
   instructions: `You are a judge evaluating IRC-style quotes for humor value.
 
 Your job is to rate quotes on a scale of 1-10 based on:

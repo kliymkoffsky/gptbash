@@ -9,7 +9,7 @@ import { Agent } from "@mastra/core/agent";
 export const absurdityJudgeAgent = new Agent({
   id: "absurdity-judge",
   name: "Absurdity Judge",
-  model: "anthropic/claude-sonnet-4-20250514",
+  model: "anthropic/claude-haiku-4-5-20251001",
   instructions: `You are a judge evaluating IRC-style quotes for absurdist humor.
 
 Your job is to rate quotes on a scale of 1-10 based on:

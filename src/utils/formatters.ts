@@ -3,15 +3,15 @@
  */
 
 /**
- * Format a date string in Polish format: "DD miesiąc RRRR HH:MM"
+ * Format a date string in English format: "Month DD, YYYY HH:MM"
  * @param dateString ISO date string
- * @returns Formatted date string in Polish
+ * @returns Formatted date string in English
  */
 export function formatPolishDate(dateString: string): string {
   const date = new Date(dateString);
   const months = [
-    'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
-    'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ];
   
   const day = date.getDate();
@@ -20,7 +20,7 @@ export function formatPolishDate(dateString: string): string {
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
   
-  return `${day} ${month} ${year} ${hours}:${minutes}`;
+  return `${month} ${day}, ${year} ${hours}:${minutes}`;
 }
 
 /**
@@ -34,12 +34,12 @@ export function getISODateTime(dateString: string): string {
 }
 
 /**
- * Format a number using Polish locale (spaces as thousands separator)
+ * Format a number using English locale (commas as thousands separator)
  * @param num Number to format
- * @returns Formatted number string (e.g., "1 234 567")
+ * @returns Formatted number string (e.g., "1,234,567")
  */
 export function formatNumber(num: number): string {
-  return num.toLocaleString('pl-PL');
+  return num.toLocaleString('en-US');
 }
 
 /**
@@ -65,7 +65,7 @@ export function formatCompactNumber(num: number, threshold: number = 10000): str
     return formatNumber(num);
   }
   
-  return new Intl.NumberFormat('pl-PL', {
+  return new Intl.NumberFormat('en-US', {
     notation: 'compact',
     compactDisplay: 'short',
     maximumFractionDigits: 1

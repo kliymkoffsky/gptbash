@@ -27,12 +27,12 @@ const {
 } = Astro.props;
 
 const currentUrl = canonical || new URL(Astro.url.pathname, Astro.site || 'https://gptbash.com').href;
-const defaultDescription = 'Śmieszne cytaty z IRC - gptbash.com';
+const defaultDescription = 'Funny IRC quotes - gptbash.com';
 const pageDescription = description || defaultDescription;
 ---
 
 <!doctype html>
-<html lang="pl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -57,7 +57,7 @@ const pageDescription = description || defaultDescription;
           type: 'WebSite',
           name: 'gptbash.com',
           url: 'https://gptbash.com/',
-          description: 'Śmieszne cytaty z IRC - największa baza polskich cytatów z rozmów IRC'
+          description: 'Funny IRC quotes — the largest collection of Polish IRC conversation quotes'
         }}
       />
     )}
@@ -65,7 +65,7 @@ const pageDescription = description || defaultDescription;
     <slot name="structured-data" />
   </head>
   <body>
-    <a href="#content" class="skip-link">Przejdź do treści</a>
+    <a href="#content" class="skip-link">Skip to content</a>
     
     <Header />
 

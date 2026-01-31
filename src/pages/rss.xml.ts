@@ -31,8 +31,8 @@ export const GET: APIRoute = () => {
   <channel>
     <title>gptbash.com</title>
     <link>https://gptbash.com/</link>
-    <description>Śmieszne cytaty z IRC</description>
-    <language>pl</language>
+    <description>Funny IRC quotes</description>
+    <language>en</language>
     <lastBuildDate>${formatRFC822Date(new Date().toISOString())}</lastBuildDate>
     <atom:link href="https://gptbash.com/rss.xml" rel="self" type="application/rss+xml"/>
     ${items}

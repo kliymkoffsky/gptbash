@@ -26,7 +26,7 @@ export default function QuoteList({
   if (quotes.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
-        Brak cytatów do wyświetlenia.
+        No quotes to display.
       </div>
     );
   }

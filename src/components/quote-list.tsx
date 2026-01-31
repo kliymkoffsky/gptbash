@@ -29,7 +29,7 @@ export default function QuoteList({
   if (quotes.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
-        Brak cytatów do wyświetlenia.
+        No quotes to display.
       </div>
     );
   }
@@ -122,11 +122,11 @@ export default function QuoteList({
 
       {enableInfiniteScroll && (
         <div style={{ margin: '10px 16px', color: '#666', fontSize: '12px' }}>
-          {loading && <span>Ładowanie…</span>}
-          {!loading && nextPage === null && <span>To już wszystko.</span>}
+          {loading && <span>Loading…</span>}
+          {!loading && nextPage === null && <span>That's all.</span>}
           {!loading && loadError && (
             <span>
-              Błąd ładowania: {loadError}{' '}
+              Loading error: {loadError}{' '}
               <a
                 href="#"
                 onClick={(e) => {
@@ -135,7 +135,7 @@ export default function QuoteList({
                   setLoadError(null);
                 }}
               >
-                spróbuj ponownie
+                try again
               </a>
             </span>
           )}

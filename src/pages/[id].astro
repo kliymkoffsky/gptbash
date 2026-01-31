@@ -34,7 +34,7 @@ const ogImageUrl = `https://gptbash.com/og-image/${quote.id}.webp`;
 ---
 
 <BaseLayout 
-  title={`gptbash.com: cytat #${quote.id}`}
+  title={`gptbash.com: quote #${quote.id}`}
   description={descriptionText}
   canonical={pageUrl}
   type="article"
@@ -46,7 +46,7 @@ const ogImageUrl = `https://gptbash.com/og-image/${quote.id}.webp`;
     slot="structured-data"
     schema={{
       type: 'Article',
-      headline: `Cytat #${quote.id}`,
+      headline: `Quote #${quote.id}`,
       description: descriptionText,
       datePublished: quote.date,
       url: pageUrl
@@ -56,7 +56,7 @@ const ogImageUrl = `https://gptbash.com/og-image/${quote.id}.webp`;
   <QuoteCard quote={quote} showLink={false} client:load />
   
   <p style="margin: 10px 17px; font-size: 12px;">
-    <a href="/latest/">« najnowsze</a> | 
+    <a href="/latest/">« latest</a> | 
     <a href="/top/">« top</a>
   </p>
 </BaseLayout>
@@ -65,7 +65,7 @@ const ogImageUrl = `https://gptbash.com/og-image/${quote.id}.webp`;
   // Track individual quote page view
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'page_view', {
-      page_title: `Cytat #${quoteId}`,
+      page_title: `Quote #${quoteId}`,
       page_location: window.location.href,
       quote_id: quoteId,
     });

@@ -151,13 +151,13 @@ export const checkMemoryStep = createStep({
   id: "check-memory",
   inputSchema: z.object({
     topic: z.string(),
-    numPersonas: z.number(),
-    numRounds: z.number(),
+    numPersonas: z.number().optional(),
+    numRounds: z.number().optional(),
   }),
   outputSchema: z.object({
     topic: z.string(),
-    numPersonas: z.number(),
-    numRounds: z.number(),
+    numPersonas: z.number().optional(),
+    numRounds: z.number().optional(),
     memoryStatus: z.object({
       usedPercent: z.number(),
       allowed: z.boolean(),
@@ -224,8 +224,8 @@ export const checkRateLimitStep = createStep({
   id: "check-rate-limit",
   inputSchema: z.object({
     topic: z.string(),
-    numPersonas: z.number(),
-    numRounds: z.number(),
+    numPersonas: z.number().optional(),
+    numRounds: z.number().optional(),
     memoryStatus: z.object({
       usedPercent: z.number(),
       allowed: z.boolean(),
@@ -233,8 +233,8 @@ export const checkRateLimitStep = createStep({
   }),
   outputSchema: z.object({
     topic: z.string(),
-    numPersonas: z.number(),
-    numRounds: z.number(),
+    numPersonas: z.number().optional(),
+    numRounds: z.number().optional(),
   }),
   execute: async ({ inputData }) => {
     const { topic, numPersonas, numRounds } = inputData;

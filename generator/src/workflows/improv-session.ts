@@ -1,100 +1,82 @@
 import { createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
-import { ImprovSessionOutputSchema } from "../types/index.js";
-import { selectPersonasStep, formatQuoteStep, rankQuotesStep } from "../steps/rank-quotes.js";
-import { runConversationStep } from "../steps/run-conversation.js";
-import { collectVotesStep } from "../steps/collect-votes.js";
-import { approveQuoteStep, checkMemoryStep, checkRateLimitStep } from "../steps/approve-quote.js";
-import { ApprovalDecisionSchema } from "../storage/types.js";
+import { BashQuoteSchema, VoteSchema } from "../types/index.js";
+import { generateEverythingStep } from "../steps/generate-everything.js";
+import { runAndJudgeStep } from "../steps/run-and-judge.js";
+import { checkMemoryStep, checkRateLimitStep } from "../steps/approve-quote.js";
 import { config } from "../config.js";
 
-// Extended output schema with approval decision
-const ImprovSessionWithApprovalOutputSchema = ImprovSessionOutputSchema.extend({
-  decision: ApprovalDecisionSchema,
-  approved: z.boolean(),
-  starred: z.boolean(),
+const FormatSchema = z.object({
+  name: z.string(),
+  messages: z.number(),
+  personas: z.number(),
+  description: z.string(),
+});
+
+// Output schema
+const ImprovOutputSchema = z.object({
+  quote: BashQuoteSchema,
+  votes: z.array(VoteSchema),
+  totalScore: z.number(),
+  judgeComments: z.array(z.string()),
+  iterations: z.number(),
+  format: FormatSchema,
 });
 
 /**
- * Improv Session Workflow (Mode 2)
+ * Improv Session Workflow
  *
- * Orchestrates AI agents having funny conversations and judges voting on them.
- * Includes memory guardrails, rate limiting, and approval routing.
- *
- * Pipeline:
+ * Fully generative pipeline:
  * 1. checkMemoryStep - Verify memory is under limit
  * 2. checkRateLimitStep - Verify rate limit not exceeded
- * 3. selectPersonasStep - Pick 2-5 random personas
- * 4. runConversationStep - Agents chat in ping-pong fashion
- * 5. formatQuoteStep - Convert to bash.org.pl quote format
- * 6. collectVotesStep - All judges vote in parallel
- * 7. rankQuotesStep - Aggregate scores
- * 8. approveQuoteStep - Route to approved/rejected storage
+ * 3. generateEverythingStep - LLM generates scene (personas, situations, rules, flavor)
+ * 4. runAndJudgeStep - Writes conversation + random judges evaluate + optional rewrite
  */
 export const improvSessionWorkflow = createWorkflow({
   id: "improv-session",
-  description: "AI agents engage in funny conversations while judges vote on quality",
+  description: "Fully generative improv - everything is LLM created",
   inputSchema: z.object({
     topic: z.string().describe("Conversation starter or topic"),
-    numPersonas: z.number().min(2).max(5).default(3).describe("Number of personas to include"),
-    numRounds: z.number().min(2).max(10).default(5).describe("Number of conversation rounds"),
+    format: z.enum(["micro", "short", "medium", "standard"]).optional().describe("Conversation format"),
   }),
-  outputSchema: ImprovSessionWithApprovalOutputSchema,
+  outputSchema: ImprovOutputSchema,
 })
   .then(checkMemoryStep)
   .then(checkRateLimitStep)
-  .then(selectPersonasStep)
-  .then(runConversationStep)
-  .then(formatQuoteStep)
-  .then(collectVotesStep)
-  .then(rankQuotesStep)
-  .then(approveQuoteStep)
+  .then(generateEverythingStep)
+  .then(runAndJudgeStep)
   .commit();
 
 /**
  * Simple Improv Workflow (without guardrails)
- *
- * For testing or when Redis is not available.
  */
 export const simpleImprovWorkflow = createWorkflow({
   id: "simple-improv-session",
   description: "Simple improv session without storage/guardrails",
   inputSchema: z.object({
     topic: z.string().describe("Conversation starter or topic"),
-    numPersonas: z.number().min(2).max(5).default(3).describe("Number of personas to include"),
-    numRounds: z.number().min(2).max(10).default(5).describe("Number of conversation rounds"),
+    format: z.enum(["micro", "short", "medium", "standard"]).optional().describe("Conversation format"),
   }),
-  outputSchema: ImprovSessionOutputSchema,
+  outputSchema: ImprovOutputSchema,
 })
-  .then(selectPersonasStep)
-  .then(runConversationStep)
-  .then(formatQuoteStep)
-  .then(collectVotesStep)
-  .then(rankQuotesStep)
+  .then(generateEverythingStep)
+  .then(runAndJudgeStep)
   .commit();
 
 /**
  * Batch Improv Runner
- *
- * Runs multiple improv sessions with concurrency limits.
- * Returns ranked results by approval status and score.
  */
 export async function runBatchImprov(
   workflow: typeof improvSessionWorkflow | typeof simpleImprovWorkflow,
   topics: string[],
-  options: { numPersonas?: number; numRounds?: number; maxConcurrent?: number } = {}
+  options: { maxConcurrent?: number } = {}
 ) {
-  const {
-    numPersonas = 3,
-    numRounds = 5,
-    maxConcurrent = config.process.maxConcurrentSessions,
-  } = options;
+  const { maxConcurrent = config.process.maxConcurrentSessions } = options;
 
-  console.log(`\n🎭 Running batch improv with ${topics.length} topics (max ${maxConcurrent} concurrent)...\n`);
+  console.log(`\n🎭 Running batch improv with ${topics.length} topics...\n`);
 
   const results: Array<{ topic: string; result: any; error?: any }> = [];
 
-  // Process in batches to respect concurrency limit
   for (let i = 0; i < topics.length; i += maxConcurrent) {
     const batch = topics.slice(i, i + maxConcurrent);
 
@@ -102,12 +84,10 @@ export async function runBatchImprov(
       batch.map(async (topic) => {
         try {
           const run = await workflow.createRun();
-          const result = await run.start({
-            inputData: { topic, numPersonas, numRounds },
-          });
+          const result = await run.start({ inputData: { topic } });
           return { topic, result };
         } catch (error) {
-          console.error(`Error running improv for topic "${topic}":`, error);
+          console.error(`Error for "${topic}":`, error);
           return { topic, result: null, error };
         }
       })
@@ -116,40 +96,12 @@ export async function runBatchImprov(
     results.push(...batchResults);
   }
 
-  // Filter and categorize results
   const successful = results.filter((r) => r.result?.status === "success");
+  const avgScore = successful.length > 0
+    ? successful.reduce((sum, r) => sum + (r.result?.result?.totalScore || 0), 0) / successful.length
+    : 0;
 
-  const approved = successful
-    .filter((r) => r.result!.result.decision?.approved)
-    .map((r) => ({
-      topic: r.topic,
-      ...r.result!.result,
-    }))
-    .sort((a, b) => b.totalScore - a.totalScore);
+  console.log(`\n🏆 Batch Results: ${successful.length}/${results.length} successful, avg score: ${avgScore.toFixed(1)}\n`);
 
-  const rejected = successful
-    .filter((r) => !r.result!.result.decision?.approved)
-    .map((r) => ({
-      topic: r.topic,
-      ...r.result!.result,
-    }))
-    .sort((a, b) => b.totalScore - a.totalScore);
-
-  console.log(`\n🏆 Batch Results:`);
-  console.log(`================================`);
-  console.log(`✅ Approved: ${approved.length}`);
-  approved.forEach((r, i) => {
-    const star = r.decision?.starred ? "⭐" : "";
-    console.log(`  ${i + 1}. ${star}Score: ${r.totalScore} - "${r.topic}"`);
-  });
-  console.log(`\n❌ Rejected: ${rejected.length}`);
-  rejected.slice(0, 5).forEach((r, i) => {
-    console.log(`  ${i + 1}. Score: ${r.totalScore} - "${r.topic}"`);
-  });
-  if (rejected.length > 5) {
-    console.log(`  ... and ${rejected.length - 5} more`);
-  }
-  console.log(`================================\n`);
-
-  return { approved, rejected, total: successful.length };
+  return { results: successful, avgScore };
 }

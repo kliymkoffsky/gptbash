@@ -61,13 +61,13 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
   const pageNumbers = getPageNumbers();
   
   return (
-    <nav className="pagination" aria-label="Nawigacja stron">
+    <nav className="pagination" aria-label="Pagination">
       {/* Previous */}
       {currentPage > 1 ? (
         <a 
           href={getPageUrl(currentPage - 1)} 
           className="prev" 
-          aria-label="Poprzednia strona"
+          aria-label="Previous page"
           onClick={(e) => {
             handlePageClick(currentPage - 1);
           }}
@@ -99,7 +99,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
             key={pageNum} 
             href={getPageUrl(pageNum)} 
             className="page" 
-            aria-label={`Strona ${pageNum}`}
+            aria-label={`Page ${pageNum}`}
             onClick={(e) => {
               handlePageClick(pageNum);
             }}
@@ -114,7 +114,7 @@ export default function Pagination({ currentPage, totalPages, baseUrl }: Paginat
         <a 
           href={getPageUrl(currentPage + 1)} 
           className="next" 
-          aria-label="Następna strona"
+          aria-label="Next page"
           onClick={(e) => {
             handlePageClick(currentPage + 1);
           }}

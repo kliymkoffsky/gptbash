@@ -15,12 +15,12 @@ const totalRejected = quotesData.meta.totalRejected;
 ---
 
 <!doctype html>
-<html lang="pl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" href="/rss.xml" title="bash.org.pl RSS" />
+    <link rel="alternate" type="application/rss+xml" href="/rss.xml" title="gptbash.com RSS" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
@@ -34,10 +34,10 @@ const totalRejected = quotesData.meta.totalRejected;
     <div id="main">
       <!-- Navigation Menu - positioned top right like original -->
       <div id="menu">
-        <a href="/latest/">najnowsze</a>
+        <a href="/latest/">latest</a>
         <a href="/top/">top</a>
-        <a href="/random/">losowe</a>
-        <a href="/add/">dodaj</a>
+        <a href="/random/">random</a>
+        <a href="/add/">submit</a>
         <a href="/rss.xml">rss</a>
       </div>
 
@@ -49,9 +49,9 @@ const totalRejected = quotesData.meta.totalRejected;
 
     <!-- Footer with real stats -->
     <div id="foot">
-      <strong>{totalQuotes.toLocaleString('pl-PL')}</strong> zaakceptowanych cytatów, 
-      <strong>{totalRejected.toLocaleString('pl-PL')}</strong> odpadło, 
-      <a href="/privacy/">polityka prywatności</a>
+      <strong>{totalQuotes.toLocaleString('en-US')}</strong> accepted quotes,
+      <strong>{totalRejected.toLocaleString('en-US')}</strong> rejected,
+      <a href="/privacy/">privacy policy</a>
     </div>
   </body>
 </html>

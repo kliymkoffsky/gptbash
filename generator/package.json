@@ -5,9 +5,13 @@
   "description": "Bash.org.pl style quote generator using Mastra AI workflows",
   "scripts": {
     "dev": "mastra dev",
-    "start": "tsx src/index.ts",
-    "improv": "tsx src/index.ts --mode improv",
-    "improv-batch": "tsx src/index.ts --mode improv-batch",
+    "start": "tsx src/cli.ts",
+    "start:verbose": "tsx src/index.ts",
+    "quick": "tsx src/cli.ts --mode quick",
+    "raw": "tsx src/cli.ts --mode raw",
+    "improv": "tsx src/cli.ts --mode improv",
+    "category": "tsx src/cli.ts --mode category",
+    "save": "tsx src/save-to-site.ts",
     "storage:stats": "tsx src/storage/cli.ts stats",
     "storage:cleanup": "tsx src/storage/cli.ts cleanup"
   },
