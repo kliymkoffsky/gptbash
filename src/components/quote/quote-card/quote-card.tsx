@@ -18,61 +18,24 @@ interface QuoteCardProps {
   showLink?: boolean;
 }
 
-// Format quote content with proper IRC nickname display
-function formatContent(content: string): JSX.Element[] {
+// Escape HTML to prevent <nick> from being interpreted as tags
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// Format quote content - matches Astro version output exactly
+function formatContent(content: string): JSX.Element {
   const normalized = normalizeQuoteContentForDisplay(content);
-  const lines = normalized.split('\n');
+  const escaped = escapeHtml(normalized);
+  // Convert newlines to <br> tags to match Astro version
+  const htmlContent = escaped.replace(/\n/g, '<br>');
   
-  return lines.map((line, lineIndex) => {
-    // Pattern to match IRC nicknames: <nick>, <@nick>, <+nick>, < nick>, etc.
-    const parts: JSX.Element[] = [];
-    let lastIndex = 0;
-    
-    // Regex to match IRC nicknames with optional prefix characters
-    const nickRegex = /(<[@+%&~]?[^\s<>]+>)/g;
-    let match;
-    
-    while ((match = nickRegex.exec(line)) !== null) {
-      // Add text before the match
-      if (match.index > lastIndex) {
-        parts.push(
-          <span key={`text-${lineIndex}-${lastIndex}`}>
-            {line.substring(lastIndex, match.index)}
-          </span>
-        );
-      }
-      
-      // Add the nickname
-      parts.push(
-        <span key={`nick-${lineIndex}-${match.index}`}>
-          {match[1]}
-        </span>
-      );
-      
-      lastIndex = match.index + match[1].length;
-    }
-    
-    // Add remaining text after last match
-    if (lastIndex < line.length) {
-      parts.push(
-        <span key={`text-${lineIndex}-${lastIndex}`}>
-          {line.substring(lastIndex)}
-        </span>
-      );
-    }
-    
-    // If no matches, just return the line as-is
-    if (parts.length === 0) {
-      parts.push(<span key={`line-${lineIndex}`}>{line}</span>);
-    }
-    
-    return (
-      <span key={`line-${lineIndex}`}>
-        {parts}
-        {lineIndex < lines.length - 1 && <br />}
-      </span>
-    );
-  });
+  return <span dangerouslySetInnerHTML={{ __html: htmlContent }} />;
 }
 
 export default function QuoteCard({ quote, showLink = true }: QuoteCardProps) {
