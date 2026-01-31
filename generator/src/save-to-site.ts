@@ -55,7 +55,7 @@ function addQuote(content: string): Quote {
     id: data.meta.lastId + 1,
     content,
     date: new Date().toISOString(),
-    upvotes: Math.floor(Math.random() * 500),
+    upvotes: 0,
     downvotes: 0,
   };
   data.quotes.push(newQuote);

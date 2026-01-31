@@ -2,6 +2,7 @@ import './quote-card.css';
 import Voting from './voting';
 import { formatPolishDate, getISODateTime } from '../utils/formatters';
 import { trackQuoteView } from '../utils/analytics';
+import { normalizeQuoteContentForDisplay } from '../utils/quote-content';
 
 interface Quote {
   uuid: string;
@@ -19,7 +20,8 @@ interface QuoteCardProps {
 
 // Format quote content with proper IRC nickname display
 function formatContent(content: string): JSX.Element[] {
-  const lines = content.split('\n');
+  const normalized = normalizeQuoteContentForDisplay(content);
+  const lines = normalized.split('\n');
   
   return lines.map((line, lineIndex) => {
     // Pattern to match IRC nicknames: <nick>, <@nick>, <+nick>, < nick>, etc.
@@ -27,7 +29,7 @@ function formatContent(content: string): JSX.Element[] {
     let lastIndex = 0;
     
     // Regex to match IRC nicknames with optional prefix characters
-    const nickRegex = /(<[@+%&~]?[\w\d_\-\[\]\\^{}|`]+>)/g;
+    const nickRegex = /(<[@+%&~]?[^\s<>]+>)/g;
     let match;
     
     while ((match = nickRegex.exec(line)) !== null) {
@@ -83,7 +85,7 @@ export default function QuoteCard({ quote, showLink = true }: QuoteCardProps) {
           {showLink ? (
             <a 
               href={`/${quote.id}/`}
-              onClick={(e) => {
+              onClick={(_e) => {
                 trackQuoteView(quote.id);
               }}
             >

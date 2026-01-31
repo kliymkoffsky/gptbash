@@ -1,129 +1,25 @@
 {
   "quotes": [
     {
-      "uuid": "c59635a3-3115-488b-8013-ea34f297e921",
+      "uuid": "1d1137f2-3b56-4e46-bc4a-d35dd7837bad",
       "id": 1,
-      "content": "<xXx_Dark_xXx> why is my code not working??? i've been debugging for 3 hours\n<confused_bob> did you try turning it off and on again?\n<hackerman99> bro that's hardware advice lmao\n<confused_bob> works for everything trust me\n<xXx_Dark_xXx> wait i just realized i named my variable \"var\" and my function \"function\"\n<hackerman99> OH NO\n<confused_bob> see? turning it off and on again would have fixed that too",
-      "date": "2026-01-31T00:55:55.373Z",
-      "upvotes": 259,
+      "content": "<user> Właśnie kupiłem NFT za 50 ETH - to jest portret mojego kota narysowany przez AI. Za 6 miesięcy będzie wart milion dolarów, gwarantuję!\n<user> Czekaj, czekaj... NFT to są te rzeczy, które można wydrukować ze strony, prawda? Moja babcia wczoraj wydrukała sobie Monę Lizę z Wikipedii, teraz jest miliarderką.\n<user> Nie, to zupełnie coś innego! Blockchain! Technologia! Przyszłość! Ty nic nie rozumiesz!\n<user> Oczywiście, przepraszam. Zaraz pójdę sprzedać zrzut ekranu Twoim kotem za 100 ETH. Mam nadzieję, że to nie będzie za drogo dla Ciebie 😌\n<user> TO NIE JEST ŚMIESZNE",
+      "date": "2026-01-31T01:25:46.071Z",
+      "upvotes": 0,
       "downvotes": 0
     },
     {
-      "uuid": "a4403e88-11d7-46ad-83dc-e44fe17a012e",
+      "uuid": "a6a713e1-fcd9-4506-ac25-beb462519e68",
       "id": 2,
-      "content": "<xXx_Dark_xXx> why is my code not working??? i've been debugging for 3 hours\n<confused_bob> did you try turning it off and on again?\n<hackerman99> bro that's hardware advice lmao\n<confused_bob> works for everything trust me\n<xXx_Dark_xXx> wait i just realized i named my variable \"var\" and my function \"function\"\n<hackerman99> OH NO\n<confused_bob> see? turning it off and on again would have fixed that too",
-      "date": "2026-01-31T00:55:57.858Z",
-      "upvotes": 128,
-      "downvotes": 0
-    },
-    {
-      "uuid": "18988806-b273-4442-910d-6fd7bbe8f4f9",
-      "id": 3,
-      "content": "<xXx_Dark_xXx> why is my code not working??? i've been debugging for 3 hours\n<confused_bob> did you try turning it off and on again?\n<hackerman99> bro that's hardware advice lmao\n<confused_bob> works for everything trust me\n<xXx_Dark_xXx> wait i just realized i named my variable \"var\" and my function \"function\"\n<hackerman99> OH NO\n<confused_bob> see? turning it off and on again would have fixed that too",
-      "date": "2026-01-31T00:56:00.344Z",
-      "upvotes": 237,
-      "downvotes": 0
-    },
-    {
-      "uuid": "5261392f-b9e1-4fa1-be04-2720491fe368",
-      "id": 4,
-      "content": "<xXx_Dark_xXx> why is my code not working??? i've been debugging for 3 hours\n<confused_bob> did you try turning it off and on again?\n<hackerman99> bro that's hardware advice lmao\n<confused_bob> works for everything trust me\n<xXx_Dark_xXx> wait i just realized i named my variable \"var\" and my function \"function\"\n<hackerman99> OH NO\n<confused_bob> see? turning it off and on again would have fixed that too",
-      "date": "2026-01-31T00:56:02.865Z",
-      "upvotes": 171,
-      "downvotes": 0
-    },
-    {
-      "uuid": "0147c8d7-f05b-441f-98fd-8be203b4c6ad",
-      "id": 5,
-      "content": "<xXx_Dark_xXx> why is my code not working??? i've been debugging for 3 hours\n<confused_bob> did you try turning it off and on again?\n<hackerman99> bro that's hardware advice lmao\n<confused_bob> works for everything trust me\n<xXx_Dark_xXx> wait i just realized i named my variable \"var\" and my function \"function\"\n<hackerman99> OH NO\n<confused_bob> see? turning it off and on again would have fixed that too",
-      "date": "2026-01-31T00:56:05.247Z",
-      "upvotes": 384,
-      "downvotes": 0
-    },
-    {
-      "uuid": "f02d5e91-a46e-4a31-a014-8fc6eee7b9b5",
-      "id": 6,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup\n<confused_bob> Nice! What kind?\n<xXx_Dark_xXx> RTX 4090, cost me like 2000 zloty\n<hackerman99> bro that's literally a gaming card lmao\n<confused_bob> Wait, you need that for Photoshop?\n<xXx_Dark_xXx> Yeah obviously, it makes colors more colorful\n<hackerman99> I'm gonna cry, that's not how any of this works",
-      "date": "2026-01-31T00:56:36.138Z",
-      "upvotes": 38,
-      "downvotes": 0
-    },
-    {
-      "uuid": "50257063-eca4-4834-a6c7-7fdb3a9189a7",
-      "id": 7,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup\n<confused_bob> Nice! What kind?\n<xXx_Dark_xXx> RTX 4090, cost me like 2000 zloty\n<hackerman99> bro that's literally a gaming card lmao\n<confused_bob> Wait, you need that for Photoshop?\n<xXx_Dark_xXx> Yeah obviously, it makes colors more colorful\n<hackerman99> I'm gonna cry, that's not how any of this works",
-      "date": "2026-01-31T00:56:38.881Z",
-      "upvotes": 461,
-      "downvotes": 0
-    },
-    {
-      "uuid": "076d5174-e432-49b8-9fe3-7ee9f0007f03",
-      "id": 8,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup. RTX 4090, absolute beast.\n<confused_bob> Nice! What resolution are you working at?\n<xXx_Dark_xXx> 8K obviously, my monitor is 8K\n<hackerman99> Bro, your monitor is 1080p. I literally saw it yesterday.\n<xXx_Dark_xXx> No way, the box said \"4K ready\"\n<confused_bob> That just means it CAN display 4K, not that it does lol\n<hackerman99> He probably thinks his USB cable is also 8K",
-      "date": "2026-01-31T00:56:41.702Z",
-      "upvotes": 120,
-      "downvotes": 0
-    },
-    {
-      "uuid": "1e81bfa9-abb4-4c51-a390-fc73ad3968f1",
-      "id": 9,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup. RTX 4090, absolute beast.\n<confused_bob> Nice! What resolution are you working at?\n<xXx_Dark_xXx> 8K obviously, my monitor is 8K\n<hackerman99> Bro, your monitor is 1080p. I literally saw it yesterday.\n<xXx_Dark_xXx> No way, the box said \"4K ready\"\n<confused_bob> That just means it CAN display 4K, not that it does lol\n<xXx_Dark_xXx> Whatever, the RTX 4090 makes everything look 8K anyway, that's how hardware works",
-      "date": "2026-01-31T00:56:44.236Z",
-      "upvotes": 110,
-      "downvotes": 0
-    },
-    {
-      "uuid": "f9a0e676-4881-48ca-845a-9423a310dc47",
-      "id": 10,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup. RTX 4090, absolute beast.\n<confused_bob> Nice! What resolution are you working at?\n<xXx_Dark_xXx> 8K obviously. My monitor is 4K but the card can handle it.\n<hackerman99> Bro that's not how it works lmao\n<confused_bob> Wait, if your monitor is 4K why do you need 8K rendering?\n<xXx_Dark_xXx> Future proofing duh. Plus the extra pixels make my Photoshop brushes smoother.\n<hackerman99> I can't tell if you're trolling or just built different",
-      "date": "2026-01-31T00:56:46.738Z",
-      "upvotes": 410,
-      "downvotes": 0
-    },
-    {
-      "uuid": "078cb1d5-9b9d-4aa6-b495-270c7250fe9d",
-      "id": 11,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup\n<confused_bob> Nice! What kind?\n<xXx_Dark_xXx> RTX 4090, cost me like 2000 zloty\n<hackerman99> bro that's literally a gaming card lmao\n<confused_bob> Wait, you need that for Photoshop?\n<xXx_Dark_xXx> Yeah obviously, it makes colors more colorful\n<hackerman99> I'm gonna cry, that's not how any of this works",
-      "date": "2026-01-31T00:56:49.417Z",
-      "upvotes": 117,
-      "downvotes": 0
-    },
-    {
-      "uuid": "45354bbe-2867-4dd2-891f-b1c3a1280bde",
-      "id": 12,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup\n<confused_bob> Nice! What kind?\n<xXx_Dark_xXx> RTX 4090, cost me like 2000 zloty\n<hackerman99> bro that's literally a gaming card lmao\n<confused_bob> Wait, you need that for Photoshop?\n<xXx_Dark_xXx> Yeah obviously, it makes colors more colorful\n<hackerman99> I'm gonna cry, that's not how any of this works",
-      "date": "2026-01-31T00:56:52.133Z",
-      "upvotes": 64,
-      "downvotes": 0
-    },
-    {
-      "uuid": "850c29f7-b671-4482-8731-0d63675968a2",
-      "id": 13,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup. RTX 4090, absolute beast.\n<confused_bob> Nice! What resolution are you working at?\n<xXx_Dark_xXx> 8K obviously. My monitor is 4K but the card can handle it.\n<hackerman99> Bro that's not how it works lmao\n<confused_bob> Wait, if your monitor is 4K why do you need 8K rendering?\n<xXx_Dark_xXx> Future proofing duh. Plus the extra pixels make my Photoshop brushes smoother.\n<hackerman99> I can't tell if you're trolling or just built different",
-      "date": "2026-01-31T00:56:54.913Z",
-      "upvotes": 24,
-      "downvotes": 0
-    },
-    {
-      "uuid": "6df2e7d8-d3e9-418c-b862-d5927b4f60f7",
-      "id": 14,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup\n<confused_bob> Nice! What kind?\n<xXx_Dark_xXx> RTX 4090, cost me like 2000 zloty\n<hackerman99> bro that's literally a gaming card lmao\n<confused_bob> Wait, you need that for Photoshop?\n<xXx_Dark_xXx> Yeah obviously, it makes colors more colorful\n<hackerman99> I'm gonna cry, that's not how any of this works",
-      "date": "2026-01-31T00:56:58.014Z",
-      "upvotes": 42,
-      "downvotes": 0
-    },
-    {
-      "uuid": "a30d41b2-3bad-4e71-81c5-276ddfcf5b3b",
-      "id": 15,
-      "content": "<xXx_Dark_xXx> Guys, I just bought a graphics card for my art setup\n<confused_bob> Nice! What kind?\n<xXx_Dark_xXx> RTX 4090, cost me like 2000 zloty\n<hackerman99> bro that's literally a gaming card lmao\n<confused_bob> Wait, you need that for Photoshop?\n<xXx_Dark_xXx> Yeah obviously, it makes colors more colorful\n<hackerman99> I'm gonna cry, that's not how any of this works",
-      "date": "2026-01-31T00:57:01.563Z",
-      "upvotes": 290,
+      "content": "<user> bro i just bought an nft of a rock for 50k, its literally going to the moon 🚀🚀🚀\n<user> LMAOOO a rock??? bro that's literally just a screenshot\n<user> NO CAP it's not a screenshot, it's blockchain technology. screenshots can't be blockchain. i read it on discord so it's facts\n<user> Kids these days... NFT stands for 'Not For Trading' anyway, you're supposed to keep them forever\n<user> STOP 💀💀💀 dad just said the most confidently wrong thing i've ever heard in my life",
+      "date": "2026-01-31T01:25:49.922Z",
+      "upvotes": 0,
       "downvotes": 0
     }
   ],
   "meta": {
-    "totalAccepted": 15,
+    "totalAccepted": 2,
     "totalRejected": 0,
-    "lastId": 15
+    "lastId": 2
   }
 }

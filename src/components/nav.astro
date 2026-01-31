@@ -1,11 +1,16 @@
 ---
 import './nav.css';
+import quotesData from '../data/quotes.json';
+
+// Quote ids are dense from 1..lastId
+const maxId = quotesData.meta.lastId;
 ---
 
-<nav id="menu" aria-label="Main navigation">
+<nav id="menu" aria-label="Main navigation" data-max-id={maxId}>
   <a href="/latest/" data-track-nav="latest">latest</a>
   <a href="/top/" data-track-nav="top">top</a>
-  <a href="/random/" data-track-nav="random">random</a>
+  <!-- Fallback goes to latest if JS is disabled -->
+  <a href="/latest/" data-track-nav="random" data-random-link="true">random</a>
   <a href="/add/" data-track-nav="add">submit</a>
   <a href="/rss.xml" data-track-nav="rss">rss</a>
 </nav>
@@ -13,22 +18,170 @@ import './nav.css';
 <script>
   import { trackNavigation, trackRandomQuote } from '../utils/analytics';
 
-  // Track navigation clicks
-  document.addEventListener('DOMContentLoaded', () => {
-    const navLinks = document.querySelectorAll('[data-track-nav]');
-    navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        const target = e.currentTarget as HTMLElement;
-        const destination = target.getAttribute('data-track-nav');
-        if (destination) {
-          trackNavigation(destination);
-          
-          // Special tracking for random page
-          if (destination === 'random') {
-            trackRandomQuote();
-          }
+  class SparseRandomPicker {
+    constructor(maxExclusive) {
+      this.max = maxExclusive;
+      this.used = new Map();
+      this.remaining = maxExclusive;
+    }
+
+    next() {
+      if (this.remaining <= 0) throw new Error('Empty');
+
+      const idx = Math.floor(Math.random() * this.remaining);
+
+      // Get real value at this virtual position
+      const value = this.used.has(idx) ? this.used.get(idx) : idx;
+
+      // Move last remaining item into this position
+      this.remaining--;
+      const last = this.remaining;
+
+      const lastReal = this.used.has(last) ? this.used.get(last) : last;
+
+      if (idx !== last) {
+        this.used.set(idx, lastReal);
+      } else {
+        this.used.delete(idx); // clean up if last item unmapped
+      }
+
+      // Clean up the last position if it was swapped
+      if (this.used.has(last)) this.used.delete(last);
+
+      return value;
+    }
+  }
+
+  const STORAGE_KEY = 'gptbash:sparse-random-picker:v1';
+
+  function loadPicker(maxExclusive) {
+    const picker = new SparseRandomPicker(maxExclusive);
+
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return picker;
+
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') {
+        return picker;
+      }
+
+      const maxExclusiveFromStorage = parsed.maxExclusive;
+      const remainingFromStorage = parsed.remaining;
+      const usedFromStorage = parsed.used;
+
+      if (
+        typeof maxExclusiveFromStorage !== 'number' ||
+        typeof remainingFromStorage !== 'number' ||
+        !Array.isArray(usedFromStorage)
+      ) {
+        return picker;
+      }
+
+      // If dataset size changed, reset.
+      if (maxExclusiveFromStorage !== maxExclusive) return picker;
+
+      picker.remaining = remainingFromStorage;
+
+      const usedPairs = usedFromStorage
+        .filter((e) => Array.isArray(e) && typeof e[0] === 'number' && typeof e[1] === 'number')
+        .map((e) => [e[0], e[1]]);
+      picker.used = new Map(usedPairs);
+
+      // Clamp invalid values (corruption / manual edits)
+      if (picker.remaining < 0 || picker.remaining > picker.max) {
+        picker.remaining = picker.max;
+        picker.used.clear();
+      }
+    } catch {
+      // ignore localStorage / JSON errors
+    }
+
+    return picker;
+  }
+
+  function savePicker(picker) {
+    try {
+      // If we're in the initial state, don't waste storage.
+      if (picker.remaining === picker.max && picker.used.size === 0) {
+        window.localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+
+      const state = {
+        maxExclusive: picker.max,
+        remaining: picker.remaining,
+        used: Array.from(picker.used.entries()),
+      };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // ignore localStorage quota / privacy mode errors
+    }
+  }
+
+  function clearPicker() {
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+  }
+
+  // Delegated click handler (survives DOM re-renders/replacements)
+  // Also guarded so we don't double-bind across navigations.
+  if (!window.__gptbashNavBound) {
+    window.__gptbashNavBound = true;
+
+    document.addEventListener(
+      'click',
+      (e) => {
+        const rawTarget = e.target;
+        if (!(rawTarget instanceof Element)) return;
+
+        const link = rawTarget.closest('a[data-track-nav]');
+        if (!(link instanceof HTMLElement)) return;
+
+        const destination = link.getAttribute('data-track-nav');
+        if (!destination) return;
+
+        trackNavigation(destination);
+
+        if (destination !== 'random') return;
+        trackRandomQuote();
+
+        // Only hijack clicks for the real random link.
+        if (link.getAttribute('data-random-link') !== 'true') return;
+
+        // Stop normal navigation to the fallback href (/latest/)
+        e.preventDefault();
+        e.stopPropagation();
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+
+        // Read maxId from the nav element's data attribute
+        const navEl = document.getElementById('menu');
+        const maxIdAttr = navEl?.getAttribute('data-max-id');
+        const maxExclusive = Number(maxIdAttr); // ids are 1..maxId (dense)
+        if (!Number.isFinite(maxExclusive) || maxExclusive <= 0) return;
+
+        let picker = loadPicker(maxExclusive);
+
+        // If exhausted, reset and start a new cycle.
+        let pick;
+        try {
+          pick = picker.next();
+        } catch {
+          clearPicker();
+          picker = new SparseRandomPicker(maxExclusive);
+          pick = picker.next();
         }
-      });
-    });
-  });
+
+        savePicker(picker);
+
+        const quoteId = pick + 1; // convert 0-based pick → 1-based quote id
+        window.location.assign(`/${quoteId}/`);
+      },
+      true, // capture phase: intercept early
+    );
+  }
 </script>

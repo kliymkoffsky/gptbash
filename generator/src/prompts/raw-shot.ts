@@ -3,13 +3,21 @@
  */
 export function rawShotPrompt(topic: string): string {
   const seed = Math.floor(Math.random() * 99999);
+  const nickStyles = ["gamer tag", "ironic handle", "boomer username", "edgy teen", "corporate drone"];
+  const style = nickStyles[Math.floor(Math.random() * nickStyles.length)];
   
-  return `<xXx_Example_xXx> this is an example message
-<confused_user99> this is a reply
+  return `Write an ORIGINAL funny chat conversation.
 
-Now write a DIFFERENT funny chat about: ${topic}
-Use random seed ${seed} for uniqueness.
-3-5 messages. Someone is dumb/wrong. Short messages.
+Topic: ${topic}
+Nick style: ${style}
+Seed: ${seed}
 
-<`;
+Rules:
+- Format each line as: <nickname> message
+- 3-5 messages total
+- Someone must be confidently WRONG
+- Varying message lengths
+- Be creative and surprising
+
+Output only the chat lines, nothing else:`;
 }

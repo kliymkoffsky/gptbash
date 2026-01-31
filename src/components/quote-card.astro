@@ -1,6 +1,7 @@
 ---
 import Voting from './voting';
 import { formatPolishDate, getISODateTime } from '../utils/formatters';
+import { normalizeQuoteContentForDisplay } from '../utils/quote-content';
 
 interface Quote {
   uuid: string;
@@ -28,7 +29,8 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#039;');
 }
 
-const escapedContent = escapeHtml(quote.content);
+const normalizedContent = normalizeQuoteContentForDisplay(quote.content);
+const escapedContent = escapeHtml(normalizedContent);
 ---
 
 <article>

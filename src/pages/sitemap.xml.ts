@@ -11,7 +11,6 @@ export const GET: APIRoute = () => {
     { url: '', priority: '1.0', changefreq: 'daily' },
     { url: '/latest/', priority: '0.9', changefreq: 'daily' },
     { url: '/top/', priority: '0.9', changefreq: 'daily' },
-    { url: '/random/', priority: '0.7', changefreq: 'daily' },
     { url: '/add/', priority: '0.8', changefreq: 'monthly' },
     { url: '/privacy/', priority: '0.5', changefreq: 'monthly' },
   ];

@@ -150,8 +150,33 @@ const {
     function createQuoteCard(quote: any): HTMLElement {
       const article = document.createElement('article');
       
+      function normalizeContentForDisplay(content: string): string {
+        // Normalize newlines
+        let out = String(content ?? '')
+          .replace(/\\r\\n/g, '\n')
+          .replace(/\\n/g, '\n')
+          .replace(/\r\n/g, '\n');
+        // Drop lines that are just a middle-dot separator
+        out = out.replace(/^\s*·\s*$/gm, '');
+        // Split inline "<nick>" segments onto new lines when surrounded by whitespace
+        out = out.replace(/\s+(<[@+%&~]?[^\s<>]+>)\s+/g, '\n$1 ');
+        // Trim line ends and reduce huge runs of empty lines
+        out = out
+          .split('\n')
+          .map((l) => l.trimEnd())
+          .filter((l, idx, arr) => {
+            if (l.trim().length > 0) return true;
+            const prev = arr[idx - 1];
+            return prev?.trim().length > 0;
+          })
+          .join('\n')
+          .trim();
+        return out.length > 0 ? out : String(content ?? '');
+      }
+
       // Escape HTML in content to prevent <nick> being interpreted as tags
-      const escapedContent = quote.content
+      const normalizedContent = normalizeContentForDisplay(quote.content);
+      const escapedContent = normalizedContent
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
